@@ -1,6 +1,7 @@
 import discord
 import asyncio
 import subprocess
+import os
 
 client = discord.Client()
 
@@ -228,5 +229,5 @@ async def on_ready():
     
     
     await client.change_status(discord.Game(name='with doujinshi!'))
-
-client.run('token')
+token = os.getenv('TOKEN')
+client.run(token)
