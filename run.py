@@ -1,95 +1,225 @@
 import discord
-from discord.ext import commands
-from time import sleep
 import asyncio
+import subprocess
 
 client = discord.Client()
-bot = commands.Bot(command_prefix='?', description='''Ero-Bot is a +18 h-manga and doujinshi bot!
-    Contact: TheGooDFeelinG#4165''')
 
-@bot.event
+@client.event
 async def on_message(message):
     # we do not want the bot to reply to itself
-    if message.author == bot.user:
+    if message.author == client.user:
         return
 
     if message.content.startswith('!hello'):
         msg = 'Fuck off everyone hates you, {0.author.mention}'.format(message)
-        await bot.send_message(message.channel, msg)
-	
-    if message.content.startswith('!dm'):
-        msg = 'test'
-        user = message.author
-        await bot.send_message(user, msg)
-
-    if message.content.startswith('!picdm'):
-        await bot.send_file(message.author, 'test1.png')
-
-    if message.content.startswith('!picture'):
-        await bot.send_file(message.channel, 'test1.png')
+        await client.send_message(message.channel, msg)
+        await client.send_message(message.channel, "You are " + str(message.author))
 
     if message.content.startswith('!clearall'):
-        def my_message(m):
-            return m.author == bot.user
-        deleted = await bot.purge_from(message.channel)
-        await bot.send_message(message.channel, 'Deleted {} messages!'.format(len(deleted)))
-        await asyncio.sleep(2)
-        await bot.purge_from(message.channel, check=my_message)
+        if str(message.author) == 'TheGooDFeelinG#4615':
+            def my_message(m):
+                return m.author == client.user
+            deleted = await client.purge_from(message.channel)
+            await client.send_message(message.channel, 'Deleted {} messages!'.format(len(deleted)))
+            await asyncio.sleep(2)
+            await client.purge_from(message.channel, check=my_message)
 
-    if message.content.startswith('!menu'):
-        msg = """```
-        What do you want to do?
-        1) Kill yourslef
-        2) Kill yourself```
-        ``Type the number below!``"""
-        await bot.send_message(message.channel, msg)
+    if message.content.startswith('!exact '):
+        query = str(message.content.split('!search ')[1])
+        for line in open('list.txt'):
+            if query in line:
+                name = line.rstrip('\n').split(':')[0]
+                await client.send_message(message.channel, 'Doujinshi name: ' + name)
+                filename = line.rstrip('\n').split(':')[1]
+                await client.send_message(message.channel, 'Filename: ' + filename)
+                pages = int(line.rstrip('\n').split(':')[2])
+                await client.send_message(message.channel, 'Number of pages: ' + str(pages))
+                extension = line.rstrip('\n').split(':')[3]
+                await client.send_message(message.channel, 'File extension: ' + extension)
+                print('Starting dump on ' + str(message.author) + "'s direct message")
+                i = 1
+                while i < pages + 1:
+                    await client.send_file(message.author, query + '/' + name + '/' + filename + str(i) + '.jpg')
+                    await asyncio.sleep(1)
+                    print('Sent file ' + str(i))
+                    i = i + 1
+                print('Dump finished!')
+
+    if message.content.startswith('!search '):
+        arg = str(message.content.split('!search ')[1])
+        query = "~" + arg + "|"
+        print('Query: ' + query) #Debug
+        with open('list.txt') as f:
+            for num, line in enumerate(f, 1):
+                if query in line:
+                    #await bot.send_message(message.channel, 'Found at line ' + str(num)) #Debug
+                    error = False
+                    break
+                else:
+                    error = True
+        print(error) #Debug
+        #There must be a better way than a bool check, but fuck it
+        if error is True:
+            await client.send_message(message.channel, 'Not found! Try an exact show name, please.')
+        elif error is False:
+            print(num) #Debug
+            print(line) #Debug
+            show = arg
+            files = int(line.rstrip('\n').split('|')[1])
+            #await bot.send_message(message.channel, 'Number of files: ' + str(files)) #Debug
+            f=open('list.txt')
+            lines=f.readlines()
+            i = num
+            choice = 1
+            p = 1
+            await client.send_message(message.channel, 'Show found, check your DMs!')
+            await client.send_message(message.author, 'Found the following:')
+            await client.send_typing(message.author)
+            pages = (int(files / 11)) + 1
+            await client.send_message(message.author, '[DEBUG] Pages: ' + str(pages))
+            if pages == 1:
+                while i < num + files:
+                    print(i)
+                    currentline = lines[i]
+                    name = currentline.rstrip('\n').split(':')[0]
+                    await client.send_message(message.author, '``' +str(choice) + '``) ' + name)
+                    await client.send_typing(message.author)
+                    #await bot.send_message(message.channel, currentline) #Debug
+                    choice = choice + 1
+                    i = i + 1
+                await client.send_message(message.author, 'Type a selection to continue...')
+            else:
+                while i < num + files:
+                    print(i)
+                    currentline = lines[i]
+                    name = currentline.rstrip('\n').split(':')[0]
+                    await client.send_message(message.author, '``' +str(choice) + '``) ' + name)
+                    await client.send_typing(message.author)
+                    #await bot.send_message(message.channel, currentline) #Debug
+                    choice = choice + 1
+                    i = i + 1
+                await client.send_message(message.author, 'Type a selection to continue...')
+                    
+            #def pick_check(m):
+            #    return m.content.isdigit()
+            pick = await client.wait_for_message(timeout=20.0, author=message.author)
+            if pick is None:
+                await client.send_message(message.author, 'Timed out, try again!')
+                return
+            if int(pick.content) <= files:
+                doujinshiline = num + int(pick.content) + 1
+                currentline = lines[doujinshiline]
+                name = currentline.rstrip('\n').split(':')[0]
+                await client.send_message(message.author, 'Dumping doujinshi ``' + name + '``! :wink:')
+                filename = currentline.rstrip('\n').split(':')[1]
+                pages = int(currentline.rstrip('\n').split(':')[2])
+                extension = currentline.rstrip('\n').split(':')[3]
+                show = arg
+                #await client.send_message(message.author, '[DEBUG] Line number: ' + str(num))
+                #await client.send_message(message.author, '[DEBUG] Full line: ' + line)
+                await client.send_message(message.author, 'Show: ``' + show + '``')
+                await client.send_message(message.author, 'Doujinshi name: ``' + name + '``')
+                await client.send_message(message.author, 'Pages: ``' + str(pages) + '``')
+                i = 1
+                while i < pages + 1:
+                    await asyncio.sleep(1)
+                    await client.send_message(message.author, 'Page number ``' + str(i) + '``')
+                    await client.send_file(message.author, show + '/' + name + '/' + filename + str(i) + '.' + extension)
+                    print('Sent file ' + str(i))
+                    i = i + 1
+                await client.send_message(message.author, 'Dump finished! :ok_hand:')
+                print('Dump finished!')
+            else:
+                await client.send_message(message.channel, 'Error! Try again!')
+
+    if message.content.startswith('!listshows'):
+        await client.send_message(message.channel, 'Shows in my database: (this might take a while)')
+        i = 0
+        with open('list.txt') as f:
+            for line in f:
+                await client.send_typing(message.channel)
+                if '~' in line:
+                    name = line.rstrip('\n').split('|')[0]
+                    name = name.split('~')[1]
+                    files = line.rstrip('\n').split('|')[1]
+                    await client.send_message(message.channel, "**·** ``" + name + '`` (``' + files + '`` doujinshis!)')
+                    i = i + 1
+                    pages = (int(i / 11)) + 1
+                    if i >= 10:
+                        howdoicallthis = int(str(i)[:-1])
+                    else:
+                        howdoicallthis = 0
+                    if pages < howdoicallthis:
+                        await client.send_message(message.channel, 'Type ``next`` to show next page or ``exit`` to stop.')
+                        pick = await client.wait_for_message(timeout=20.0, author=message.author)
+                        if pick.content == "exit":
+                            return
+                        if pick.content == None:
+                            await client.send_message(message.author, 'Timed out, automatically exited!')
+                            return
+                        if pick.content == "next":
+                            continue
+                    else:
+                        pass
+        await client.send_message(message.channel, '[DEBUG] howdoicallthis value: ' + str(howdoicallthis))
+        await client.send_message(message.channel, '[DEBUG] pages value: ' + str (pages))
+        await client.send_message(message.channel, '[DEBUG] i value: ' + str(i))
+        await client.send_message(message.channel, 'If you want a show added, use ``!suggest <show name>``')
+
+    if message.content.startswith('!suggest '):
+        arg = str(message.content.split('!suggest ')[1])
+        try:
+            subprocess.run(["/media/erobot/unpack.bash", arg], cwd="/media/erobot", check=True)
+        except subprocess.CalledProcessError:
+            await client.send_message(message.channel, "Bash script error: Couldn't find ``" + arg + '`` Or there was a problem extracting. Try another show name.')
+        else:
+            await client.send_message(message.channel, 'Doujinshi ``' + arg + '`` successfully added!')
         
-        def pick_check(m):
-            return m.content.isdigit()
+    if message.content.startswith('!help '):
+        arg = str(message.content.split('!help ')[1])
+        commands = ['help', 'search']
+        helptext = ['Shows this help message', '''Searchs through all the database with the show name as an argument.```
+    Example: ``!search Date A Live`` will show all the ``Date A Live`` doujinshi.''']
+        i = 0
+        await client.send_message(message.channel, 'Command number: ' + str(len(commands)))
+        while i <= int(len(commands)):
+            if arg == int(commands[i]):
+                error = False
+                await client.send_message(message.channel, helptext[i])
+                pass
+            else:
+                await client.send_message(message.channel, '[DEBUG] i after: ' + str(i))
+                error = True
+                await client.send_message(message.channel, '[DEBUG] error?: ' + str(error))
+                i = i + 1
+                await client.send_message(message.channel, '[DEBUG] i before: ' + str(i))
+        await client.send_message(message.channel, '[DEBUG] arg: ' + arg)
+        await client.send_message(message.channel, '[DEBUG] commands: ' + str(commands).strip('[]'))
+        if error is True or arg is None:
+            await client.send_message(message.channel, '''Commands aviable: ``%s``.
+            Use ``!help <command>`` for further help!''') % commands
+
+    if message.content.startswith('!repeat '):
+        msg = str(message.content.split('!repeat ')[1])
+        await client.send_message(message.channel, msg)
+
+    if message.content.startswith('!dump '):
+        show = message.content.split('!dump ')[1]
+        image = 1
+        author = message.author
+        imagenumber = 23
+        print('Starting dump on ' + str(message.author) + "'s direct message")
+        while image < imagenumber + 1:
+            await client.send_file(author, show + 'yoshinodateafter/yoshino-date-after-' + str(image) + '.jpg')
+            await asyncio.sleep(1)
+            image = image + 1
+        print('Dump finished!')
+
             
-        pick = await bot.wait_for_message(timeout=20.0, author=message.author, check=pick_check)
-        if pick is None:
-            await bot.send_message(message.channel, 'Timed out, try again!')
-            return
-        if int(pick.content) == 1:
-            await bot.send_message(message.channel, 'You picked 1!')
-        if int(pick.content) == 2:
-            await bot.send_message(message.channel, 'You picked 2!')
-    
-    if message.content.startswith('!search'):
-        await bot.send_message(message.channel, 'wip you fucker')
-
-        for line in f:
-            if "test" in line: print(line)
-            
-    if message.content.startswith('!repeat'):
-        await bot.send_message(message.channel, message.content)
-
-    await bot.process_commands(message)
-            
-@bot.command()
-async def mention(ctx):
-    """[WIP] Mentions yourself"""
-    await bot.say('{ctx.message.author.id}'.format(ctx))
-
-@bot.command()
-async def picture(ctx):
-    """[WIP] Sends a picture to the current channel"""
-    await bot.send_file(ctx.channel, 'test1.png')
-
-@bot.command()
-async def clearall(channel : id):
-    """[WIP] Clear all the messages in the current channel"""
-    def my_message(m):
-         return m.author == bot.user
-    deleted = await bot.purge_from(channel)
-    await bot.send_message(channel, 'Deleted {} messages!'.format(len(deleted)))
-    await asyncio.sleep(2)
-
-@bot.event
+@client.event
 async def on_ready():
     print('Logged in as')
-    print(bot.user.name + ' (id: ' + bot.user.id + ')')
+    print(client.user.name + ' (id: ' + client.user.id + ')')
     print('------')
     #print('Opening list.txt')
     #f = open('list.txt', 'r')
@@ -97,6 +227,6 @@ async def on_ready():
     #print('------')
     
     
-    await bot.change_status(discord.Game(name='with doujinshi!'))
+    await client.change_status(discord.Game(name='with doujinshi!'))
 
-bot.run('token')
+client.run('token')
