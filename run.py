@@ -119,7 +119,10 @@ async def on_message(message):
                 filename = currentline.rstrip('\n').split(':')[1]
                 pages = int(currentline.rstrip('\n').split(':')[2])
                 extension = currentline.rstrip('\n').split(':')[3]
-                show = arg
+                currentline = lines[num - 1]
+                print(currentline)
+                show = currentline.split('~')[1]
+                show = show.split('|')[0]
                 #await client.send_message(message.author, '[DEBUG] Line number: ' + str(num))
                 #await client.send_message(message.author, '[DEBUG] Full line: ' + line)
                 #await client.send_message(message.author, 'Show: ``' + show + '``')
