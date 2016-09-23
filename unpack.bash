@@ -1,13 +1,13 @@
 #!/bin/bash
 #usage: ./unpack.bash <zip name>
-
+set -e
+ARG="$1"
 FILE=/media/erobot/list.txt
 cd /media/doujins/
-unzip $1.zip -d /media/erobot/ #unzips into the bot folder
-cd /media/erobot/$1
+unzip -o /media/doujins/"$ARG".zip -d /media/erobot/ #unzips into the bot folder
+cd /media/erobot/"$ARG"
 OUTPUT="$(find . -mindepth 1 -type d | wc -l)" #how many doujinshi at folder
-sed -i -e '$a\' $FILE #insert newline
-echo "~$1|${OUTPUT}" >> $FILE #after newline, makes the show entrance
+echo -e $"\n~$ARG|${OUTPUT}" >> $FILE #	makes the show entrance
 for (( i = 1; i < $OUTPUT + 1; i++ )); do #for every doujinshi do
 	LINE="$(ls -1 | sed -n "$i p" )" # the line is the $ith line
 	cd "$LINE" #enters into it
