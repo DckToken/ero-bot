@@ -88,6 +88,10 @@ async def on_message(message):
                     #await bot.send_message(message.channel, currentline) #Debug
                     choice = choice + 1
                     i = i + 1
+                    if i == files:
+                        break
+                    else:
+                        continue
                 await client.send_message(message.author, 'Type a selection to continue...')
             else:
                 while i < num + files:
@@ -128,7 +132,8 @@ async def on_message(message):
                     #await asyncio.sleep(1) #lib handles ratelimits
                     #await client.send_message(message.author, 'Page number ``' + str(i) + '``')
                     #await client.send_file(message.author, show + '/' + name + '/' + filename + str(i) + '.' + extension)
-                    await client.send_file(message.author, path)
+                    content = "Page ``{}``".format(str(i))
+                    await client.send_file(message.author, path, content=content)
                     print('Sent file ' + str(i))
                     i = i + 1
                 await client.send_message(message.author, 'Dump finished! :ok_hand:')
