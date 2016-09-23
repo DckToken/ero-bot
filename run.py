@@ -137,34 +137,41 @@ async def on_message(message):
         await client.send_message(message.channel, 'Shows in my database: (this might take a while)')
         i = 0
         with open('list.txt') as f:
-            for line in f:
+            lines=f.readlines()
+            num_lines = file_len('list.txt')
+            l = 0
+            i = 1
+            print(num_lines)
+            while l < num_lines + 1:
                 await client.send_typing(message.channel)
-                if '~' in line:
-                    name = line.rstrip('\n').split('|')[0]
-                    name = name.split('~')[1]
-                    files = line.rstrip('\n').split('|')[1]
-                    await client.send_message(message.channel, "**·** ``" + name + '`` (``' + files + '`` doujinshis!)')
-                    i = i + 1
-                    pages = (int(i / 11)) + 1
-                    if i >= 10:
-                        howdoicallthis = int(str(i)[:-1])
-                    else:
-                        howdoicallthis = 0
-                    if pages < howdoicallthis:
-                        await client.send_message(message.channel, 'Type ``next`` to show next page or ``exit`` to stop.')
-                        pick = await client.wait_for_message(timeout=20.0, author=message.author)
-                        if pick.content == "exit":
-                            return
-                        if pick.content == None:
-                            await client.send_message(message.author, 'Timed out, automatically exited!')
-                            return
-                        if pick.content == "next":
-                            continue
-                    else:
-                        pass
-        await client.send_message(message.channel, '[DEBUG] howdoicallthis value: ' + str(howdoicallthis))
-        await client.send_message(message.channel, '[DEBUG] pages value: ' + str (pages))
-        await client.send_message(message.channel, '[DEBUG] i value: ' + str(i))
+                currentline = lines[l]
+                print(currentline)
+                name = currentline.rstrip('\n').split('|')[0]
+                name = name.split('~')[1]
+                files = currentline.rstrip('\n').split('|')[1]
+                await client.send_message(message.channel, "**·** ``" + name + '`` (``' + files + '`` doujinshis!)')
+                l = l + int(files) + 2
+                i = i + 1
+                pages = (int(i / 11)) + 1
+                if i >= 10:
+                    howdoicallthis = int(str(i)[:-1])
+                else:
+                    howdoicallthis = 0
+                if pages < howdoicallthis:
+                    await client.send_message(message.channel, 'Type ``next`` to show next page or ``exit`` to stop.')
+                    pick = await client.wait_for_message(timeout=20.0, author=message.author)
+                    if pick.content == "exit":
+                        return
+                    if pick.content == None:
+                        await client.send_message(message.author, 'Timed out, automatically exited!')
+                        return
+                    if pick.content == "next":
+                        continue
+                else:
+                    pass
+        #await client.send_message(message.channel, '[DEBUG] howdoicallthis value: ' + str(howdoicallthis))
+        #await client.send_message(message.channel, '[DEBUG] pages value: ' + str (pages))
+        #await client.send_message(message.channel, '[DEBUG] i value: ' + str(i))
         await client.send_message(message.channel, 'If you want a show added, use ``!suggest <show name>``')
 
     if message.content.startswith('!suggest '):
@@ -215,6 +222,13 @@ async def on_message(message):
             await asyncio.sleep(1)
             image = image + 1
         print('Dump finished!')
+
+
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
 
             
 @client.event
