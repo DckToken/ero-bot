@@ -52,7 +52,7 @@ async def on_message(message):
         print('Query: ' + query) #Debug
         with open('list.txt') as f:
             for num, line in enumerate(f, 1):
-                if query in line:
+                if query.lower() in line.lower():
                     #await bot.send_message(message.channel, 'Found at line ' + str(num)) #Debug
                     error = False
                     break
