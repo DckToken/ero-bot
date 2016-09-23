@@ -108,7 +108,7 @@ async def on_message(message):
                 await client.send_message(message.author, 'Timed out, try again!')
                 return
             if int(pick.content) <= files:
-                doujinshiline = num + int(pick.content) + 1
+                doujinshiline = num + int(pick.content) - 1
                 currentline = lines[doujinshiline]
                 name = currentline.rstrip('\n').split(':')[0]
                 await client.send_message(message.author, 'Dumping doujinshi ``' + name + '``! :wink:')
