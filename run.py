@@ -118,9 +118,10 @@ async def on_message(message):
                 show = arg
                 #await client.send_message(message.author, '[DEBUG] Line number: ' + str(num))
                 #await client.send_message(message.author, '[DEBUG] Full line: ' + line)
-                await client.send_message(message.author, 'Show: ``' + show + '``')
-                await client.send_message(message.author, 'Doujinshi name: ``' + name + '``')
-                await client.send_message(message.author, 'Pages: ``' + str(pages) + '``')
+                #await client.send_message(message.author, 'Show: ``' + show + '``')
+                #await client.send_message(message.author, 'Doujinshi name: ``' + name + '``')
+                #await client.send_message(message.author, 'Pages: ``' + str(pages) + '``')
+                await client.send_message(message.author, '''Show: ``{}``\nDoujinshi name: ``{}``\nPages: ``{}``'''.format(show, name, str(pages)))
                 i = 1
                 while i < pages + 1:
                     path = "{}/{}/{}{}.{}".format(show, name, filename, str(i), extension)
