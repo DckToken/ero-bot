@@ -1,2 +1,4 @@
 #Ignore all folders
 */
+#Ignore also list file
+list.txt
