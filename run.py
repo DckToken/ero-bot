@@ -123,9 +123,11 @@ async def on_message(message):
                 await client.send_message(message.author, 'Pages: ``' + str(pages) + '``')
                 i = 1
                 while i < pages + 1:
-                    await asyncio.sleep(1)
-                    await client.send_message(message.author, 'Page number ``' + str(i) + '``')
-                    await client.send_file(message.author, show + '/' + name + '/' + filename + str(i) + '.' + extension)
+                    path = "{}/{}/{}{}.{}".format(show, name, filename, str(i), extension)
+                    #await asyncio.sleep(1) #lib handles ratelimits
+                    #await client.send_message(message.author, 'Page number ``' + str(i) + '``')
+                    #await client.send_file(message.author, show + '/' + name + '/' + filename + str(i) + '.' + extension)
+                    await client.send_file(message.author, path)
                     print('Sent file ' + str(i))
                     i = i + 1
                 await client.send_message(message.author, 'Dump finished! :ok_hand:')
