@@ -74,6 +74,7 @@ async def on_message(message):
             pages = (int(files / 11)) + 1
             await client.send_message(message.author, '[DEBUG] Pages: ' + str(pages))
             if pages == 1:
+                print('inside just one page condition')
                 while i < num + files:
                     print(i)
                     currentline = lines[i]
@@ -85,59 +86,53 @@ async def on_message(message):
                     i = i + 1
                     if i == files:
                         break
+                        await client.send_message(message.author, 'Type a selection to continue...')
+                        pick = await client.wait_for_message(timeout=20.0, author=message.author)
+                        if pick is None:
+                            await client.send_message(message.author, 'Timed out, try again!')
+                            return
+                        if int(pick.content) <= files:
+                            doujinshiline = num + int(pick.content) - 1
+                            dump_doujinshi(doujinshiline)
                     else:
                         continue
-                await client.send_message(message.author, 'Type a selection to continue...')
-            else:
-                while i < num + files:
-                    print(i)
-                    currentline = lines[i]
-                    name = currentline.rstrip('\n').split(':')[0]
-                    await client.send_message(message.author, '``' +str(choice) + '``) ' + name)
-                    await client.send_typing(message.author)
-                    #await bot.send_message(message.channel, currentline) #Debug
-                    choice = choice + 1
-                    i = i + 1
-                await client.send_message(message.author, 'Type a selection to continue...')
-                    
-            #def pick_check(m):
-            #    return m.content.isdigit()
-            pick = await client.wait_for_message(timeout=20.0, author=message.author)
-            if pick is None:
-                await client.send_message(message.author, 'Timed out, try again!')
-                return
-            if int(pick.content) <= files:
-                doujinshiline = num + int(pick.content) - 1
-                currentline = lines[doujinshiline]
-                name = currentline.rstrip('\n').split(':')[0]
-                await client.send_message(message.author, 'Dumping doujinshi ``' + name + '``! :wink:')
-                filename = currentline.rstrip('\n').split(':')[1]
-                pages = int(currentline.rstrip('\n').split(':')[2])
-                extension = currentline.rstrip('\n').split(':')[3]
-                currentline = lines[num - 1]
-                print(currentline)
-                show = currentline.split('~')[1]
-                show = show.split('|')[0]
-                #await client.send_message(message.author, '[DEBUG] Line number: ' + str(num))
-                #await client.send_message(message.author, '[DEBUG] Full line: ' + line)
-                #await client.send_message(message.author, 'Show: ``' + show + '``')
-                #await client.send_message(message.author, 'Doujinshi name: ``' + name + '``')
-                #await client.send_message(message.author, 'Pages: ``' + str(pages) + '``')
-                await client.send_message(message.author, '''Show: ``{}``\nDoujinshi name: ``{}``\nPages: ``{}``'''.format(show, name, str(pages)))
-                i = 1
-                while i < pages + 1:
-                    path = "{}/{}/{}{}.{}".format(show, name, filename, str(i), extension)
-                    #await asyncio.sleep(1) #lib handles ratelimits
-                    #await client.send_message(message.author, 'Page number ``' + str(i) + '``')
-                    #await client.send_file(message.author, show + '/' + name + '/' + filename + str(i) + '.' + extension)
-                    content = "Page ``{}``".format(str(i))
-                    await client.send_file(message.author, path, content=content)
-                    print('Sent file ' + str(i))
-                    i = i + 1
-                await client.send_message(message.author, 'Dump finished! :ok_hand:')
-                print('Dump finished!')
-            else:
-                await client.send_message(message.channel, 'Error! Try again!')
+            else: #when there is more than one page
+                print('inside more than one page condition!')
+                currentpage = 1
+                while currentpage <= pages:
+                    print(currentpage)
+                    await client.send_message(message.author, 'Page number ``' + str(currentpage) + '``:')
+                    while i < num + files:
+                        while i < currentpage * 10 + 1:
+                                print(i)
+                                currentline = lines[i]
+                                name = currentline.rstrip('\n').split(':')[0]
+                                await client.send_message(message.author, '``' +str(choice) + '``) ' + name)
+                                await client.send_typing(message.author)
+                                #await bot.send_message(message.channel, currentline) #Debug
+                                choice = choice + 1
+                                i = i + 1
+                                if i == files:
+                                    break
+                                else:
+                                    continue
+                                if i < currentpage * 10 + 1:
+                                    pagesleft = pages - currentpage
+                                    await client.send_message(message.author, 'Page end reached. ``' + str(pagesleft) + '`` pages left.\nType a selection to continue.\nIf you want to countinue type ``next``. If you want to stop, type ``exit`` instead!')
+                                    pick = await client.wait_for_message(timeout=20.0, author=message.author)
+                                    if pick is None:
+                                        await client.send_message(message.author, 'Timed out, try again!')
+                                        return
+                                    if pick  == "exit":
+                                        await client.send_message(message.author, 'Dump cancelled')
+                                        return
+                                    if pick == "next":
+                                        currentpage = currentpage + 1
+                                        break
+                                    if int(pick.content) <= files:
+                                            doujinshiline = num + int(pick.content) - 1
+                                            dump_doujinshi(doujinshiline, message)
+            
 
     if message.content.startswith('!listshows'):
         await client.send_message(message.channel, 'Shows in my database: (this might take a while)')
@@ -182,9 +177,11 @@ async def on_message(message):
 
     if message.content.startswith('!suggest '):
         arg = str(message.content.split('!suggest ')[1])
+        await client.send_message('Running script, searching for ``' + arg + '``...')
         try:
             subprocess.run(["/media/erobot/unpack.bash", arg], cwd="/media/erobot", check=True)
         except subprocess.CalledProcessError:
+            print('error on script')
             await client.send_message(message.channel, "Bash script error: Couldn't find ``" + arg + '`` Or there was a problem extracting. Try another show name.')
         else:
             await client.send_message(message.channel, 'Doujinshi ``' + arg + '`` successfully added!')
@@ -219,6 +216,38 @@ def file_len(fname):
         for i, l in enumerate(f):
             pass
     return i + 1
+
+async def dump_doujinshi(doujinshiline, message):
+    currentline = lines[doujinshiline]
+    name = currentline.rstrip('\n').split(':')[0]
+    await client.send_message(message.author, 'Dumping doujinshi ``' + name + '``! :wink:')
+    filename = currentline.rstrip('\n').split(':')[1]
+    pages = int(currentline.rstrip('\n').split(':')[2])
+    extension = currentline.rstrip('\n').split(':')[3]
+    currentline = lines[num - 1]
+    print(currentline)
+    show = currentline.split('~')[1]
+    show = show.split('|')[0]
+    #await client.send_message(message.author, '[DEBUG] Line number: ' + str(num))
+    #await client.send_message(message.author, '[DEBUG] Full line: ' + line)
+    #await client.send_message(message.author, 'Show: ``' + show + '``')
+    #await client.send_message(message.author, 'Doujinshi name: ``' + name + '``')
+    #await client.send_message(message.author, 'Pages: ``' + str(pages) + '``')
+    await client.send_message(message.author, '''Show: ``{}``\nDoujinshi name: ``{}``\nPages: ``{}``'''.format(show, name, str(pages)))
+    i = 1
+    while i < pages + 1:
+        path = "{}/{}/{}{}.{}".format(show, name, filename, str(i), extension)
+        #await asyncio.sleep(1) #lib handles ratelimits
+        #await client.send_message(message.author, 'Page number ``' + str(i) + '``')
+        #await client.send_file(message.author, show + '/' + name + '/' + filename + str(i) + '.' + extension)
+        content = "Page ``{}``".format(str(i))
+        await client.send_file(message.author, path, content=content)
+        print('Sent file ' + str(i))
+        i = i + 1
+        await client.send_message(message.author, 'Dump finished! :ok_hand:')
+        print('Dump finished!')
+    else:
+        await client.send_message(message.channel, 'Error! Try again!')
 
             
 @client.event
