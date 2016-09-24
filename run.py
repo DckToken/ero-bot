@@ -11,11 +11,6 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('!hello'):
-        msg = 'Fuck off everyone hates you, {0.author.mention}'.format(message)
-        await client.send_message(message.channel, msg)
-        await client.send_message(message.channel, "You are " + str(message.author))
-
     if message.content.startswith('!clearall'):
         if str(message.author) == 'TheGooDFeelinG#4615':
             def my_message(m):
@@ -217,22 +212,6 @@ async def on_message(message):
         if error is True or arg is None:
             await client.send_message(message.channel, '''Commands aviable: ``%s``.
             Use ``!help <command>`` for further help!''') % commands
-
-    if message.content.startswith('!repeat '):
-        msg = str(message.content.split('!repeat ')[1])
-        await client.send_message(message.channel, msg)
-
-    if message.content.startswith('!dump '):
-        show = message.content.split('!dump ')[1]
-        image = 1
-        author = message.author
-        imagenumber = 23
-        print('Starting dump on ' + str(message.author) + "'s direct message")
-        while image < imagenumber + 1:
-            await client.send_file(author, show + 'yoshinodateafter/yoshino-date-after-' + str(image) + '.jpg')
-            await asyncio.sleep(1)
-            image = image + 1
-        print('Dump finished!')
 
 
 def file_len(fname):
