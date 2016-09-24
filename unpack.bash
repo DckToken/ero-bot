@@ -4,7 +4,9 @@ set -e
 ARG="$1"
 FILE=/media/erobot/list.txt
 cd /media/doujins/
-unzip -o /media/doujins/"$ARG".zip -d /media/erobot/ #unzips into the bot folder
+echo "Starting to unzip quietly..."
+unzip -o -qq /media/doujins/"$ARG".zip -d /media/erobot/ #unzips into the bot folder
+echo "Unzipped files!"
 cd /media/erobot/"$ARG"
 OUTPUT="$(find . -mindepth 1 -type d | wc -l)" #how many doujinshi at folder
 echo -e $"\n~$ARG|${OUTPUT}" >> $FILE #	makes the show entrance
