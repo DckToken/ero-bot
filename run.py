@@ -94,6 +94,7 @@ async def on_message(message):
                         if int(pick.content) <= files:
                             doujinshiline = num + int(pick.content) - 1
                             dump_doujinshi(doujinshiline)
+                            return
                     else:
                         continue
             else: #when there is more than one page
@@ -132,6 +133,7 @@ async def on_message(message):
                                 if int(pick.content) <= files:
                                         doujinshiline = num + int(pick.content) - 1
                                         await dump_doujinshi(doujinshiline, message, lines, num)
+                                        return
                             if choice > currentpage * 10 or choice == files + 1 and pagesleft == 0:
                                 await client.send_message(message.author, '**Last page reached.**\nType a selection to continue or type ``exit`` to cancel')
                                 pick = await client.wait_for_message(timeout=20.0, author=message.author)
@@ -144,6 +146,7 @@ async def on_message(message):
                                 if int(pick.content) <= files:
                                         doujinshiline = num + int(pick.content) - 1
                                         await dump_doujinshi(doujinshiline, message, lines, num)
+                                        return
 
     if message.content.startswith('!listshows'):
         await client.send_message(message.channel, 'Shows in my database: (this might take a while)')
