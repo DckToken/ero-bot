@@ -102,21 +102,23 @@ async def on_message(message):
                 currentpage = 1
                 while currentpage <= pages:
                     print(currentpage)
+                    await client.send_message(message.author, 'Page number ``' + str(currentpage) + '``/``' + str(pages) + '``:')
                     while choice < currentpage * 10 + 1:
-                        await client.send_message(message.author, 'Page number ``' + str(currentpage) + '``/``' + str(pages) + '``:')
-                        while i < num + files:
-                            print(i)
-                            currentline = lines[i]
+                        while i < num + files: #for kill la kill is "i < 68 + 13" (which is 81, last line) so this is :ok_hand:
+                            print('i: ' + str(i))
+                            print('choice: ' + str(choice))
+                            print('files; ' + str(files))
+                            currentline = lines[i] #starts at index 0, be careful!
                             name = currentline.rstrip('\n').split(':')[0]
                             await client.send_message(message.author, '``' +str(choice) + '``) ' + name)
                             await client.send_typing(message.author)
                             #await bot.send_message(message.channel, currentline) #Debug
                             choice = choice + 1
                             i = i + 1
-                            print(currentpage * 10 + 1)
+                            pagesleft = pages - currentpage
+                            print('currentpage: ' + str(currentpage * 10 + 1))
                             if choice > currentpage * 10:
-                                pagesleft = pages - currentpage
-                                await client.send_message(message.author, 'Page end reached (``' + str(pagesleft) + '`` pages left).\nType a selection to continue.\nIf you want to countinue type ``next``. If you want to stop, type ``exit`` instead!')
+                                await client.send_message(message.author, '**Page end reached** (``' + str(pagesleft) + '`` pages left).\nType a selection to continue.\nIf you want to countinue type ``next``. If you want to stop, type ``exit`` instead!')
                                 pick = await client.wait_for_message(timeout=20.0, author=message.author)
                                 if pick is None:
                                     await client.send_message(message.author, 'Timed out, try again!')
@@ -130,10 +132,17 @@ async def on_message(message):
                                 if int(pick.content) <= files:
                                         doujinshiline = num + int(pick.content) - 1
                                         dump_doujinshi(doujinshiline, message)
-                            if choice == files:
-                                break
-                            else:
-                                continue
+                            if choice > currentpage * 10 or choice == files + 1 and pagesleft == 0:
+                                await client.send_message(message.author, '**Last page reached.**\nType a selection to continue or type ``exit`` to cancel')
+                                if pick is None:
+                                    await client.send_message(message.author, 'Timed out, try again!')
+                                    return
+                                if pick.content  == "exit":
+                                    await client.send_message(message.author, 'Dump cancelled')
+                                    return
+                                if int(pick.content) <= files:
+                                        doujinshiline = num + int(pick.content) - 1
+                                        dump_doujinshi(doujinshiline, message)
 
     if message.content.startswith('!listshows'):
         await client.send_message(message.channel, 'Shows in my database: (this might take a while)')
