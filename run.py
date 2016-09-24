@@ -102,8 +102,8 @@ async def on_message(message):
                 currentpage = 1
                 while currentpage <= pages:
                     print(currentpage)
-                    await client.send_message(message.author, 'Page number ``' + str(currentpage) + '``/``' + str(pages) + '``:')
                     while choice < currentpage * 10 + 1:
+                        await client.send_message(message.author, 'Page number ``' + str(currentpage) + '``/``' + str(pages) + '``:')
                         while i < num + files: #for kill la kill is "i < 68 + 13" (which is 81, last line) so this is :ok_hand:
                             print('i: ' + str(i))
                             print('choice: ' + str(choice))
@@ -131,9 +131,10 @@ async def on_message(message):
                                     break
                                 if int(pick.content) <= files:
                                         doujinshiline = num + int(pick.content) - 1
-                                        dump_doujinshi(doujinshiline, message)
+                                        await dump_doujinshi(doujinshiline, message, lines, num)
                             if choice > currentpage * 10 or choice == files + 1 and pagesleft == 0:
                                 await client.send_message(message.author, '**Last page reached.**\nType a selection to continue or type ``exit`` to cancel')
+                                pick = await client.wait_for_message(timeout=20.0, author=message.author)
                                 if pick is None:
                                     await client.send_message(message.author, 'Timed out, try again!')
                                     return
@@ -142,7 +143,7 @@ async def on_message(message):
                                     return
                                 if int(pick.content) <= files:
                                         doujinshiline = num + int(pick.content) - 1
-                                        dump_doujinshi(doujinshiline, message)
+                                        await dump_doujinshi(doujinshiline, message, lines, num)
 
     if message.content.startswith('!listshows'):
         await client.send_message(message.channel, 'Shows in my database: (this might take a while)')
@@ -227,7 +228,7 @@ def file_len(fname):
             pass
     return i + 1
 
-async def dump_doujinshi(doujinshiline, message):
+async def dump_doujinshi(doujinshiline, message, lines, num):
     currentline = lines[doujinshiline]
     name = currentline.rstrip('\n').split(':')[0]
     await client.send_message(message.author, 'Dumping doujinshi ``' + name + '``! :wink:')
@@ -254,10 +255,8 @@ async def dump_doujinshi(doujinshiline, message):
         await client.send_file(message.author, path, content=content)
         print('Sent file ' + str(i))
         i = i + 1
-        await client.send_message(message.author, 'Dump finished! :ok_hand:')
-        print('Dump finished!')
-    else:
-        await client.send_message(message.channel, 'Error! Try again!')
+    await client.send_message(message.author, 'Dump finished! :ok_hand:')
+    print('Dump finished!')
 
             
 @client.event
