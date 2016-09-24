@@ -69,7 +69,7 @@ async def on_message(message):
             choice = 1
             p = 1
             await client.send_message(message.channel, 'Show found, check your DMs!')
-            await client.send_message(message.author, 'Found ``' + files '`` doujinshi')
+            await client.send_message(message.author, 'Found ``' + files + '`` doujinshi')
             await client.send_typing(message.author)
             pages = (int(files / 11)) + 1
             await client.send_message(message.author, '[DEBUG] Pages: ' + str(pages))
