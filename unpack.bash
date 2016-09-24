@@ -2,10 +2,10 @@
 #usage: ./unpack.bash <zip name>
 set -e
 ARG="$1"
-FILE=/media/erobot/list.txt
+FILE=/media/ero-bot/list.txt
 cd /media/doujins/
-unzip -o /media/doujins/"$ARG".zip -d /media/erobot/ #unzips into the bot folder
-cd /media/erobot/"$ARG"
+unzip -o /media/doujins/"$ARG".zip -d /media/ero-bot/ #unzips into the bot folder
+cd /media/ero-bot/"$ARG"
 OUTPUT="$(find . -mindepth 1 -type d | wc -l)" #how many doujinshi at folder
 echo -e $"\n~$ARG|${OUTPUT}" >> $FILE #	makes the show entrance
 for (( i = 1; i < $OUTPUT + 1; i++ )); do #for every doujinshi do

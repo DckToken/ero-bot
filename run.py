@@ -191,9 +191,9 @@ async def on_message(message):
 
     if message.content.startswith('!suggest '):
         arg = str(message.content.split('!suggest ')[1])
-        await client.send_message('Running script, searching for ``' + arg + '``...')
+        await client.send_message(message.channel, 'Running script, searching for ``' + arg + '``...')
         try:
-            subprocess.run(["/media/erobot/unpack.bash", arg], cwd="/media/erobot", check=True)
+            subprocess.run(["bash", "/media/ero-bot/unpack.bash", arg], cwd="/media/ero-bot", check=True)
         except subprocess.CalledProcessError:
             print('error on script')
             await client.send_message(message.channel, "Bash script error: Couldn't find ``" + arg + '`` Or there was a problem extracting. Try another show name.')
