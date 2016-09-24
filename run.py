@@ -93,7 +93,7 @@ async def on_message(message):
                             return
                         if int(pick.content) <= files:
                             doujinshiline = num + int(pick.content) - 1
-                            dump_doujinshi(doujinshiline)
+                            dump_doujinshi(doujinshiline, message, lines, num)
                             return
                     else:
                         continue
