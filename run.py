@@ -69,12 +69,12 @@ async def on_message(message):
             choice = 1
             p = 1
             await client.send_message(message.channel, 'Show found, check your DMs!')
-            await client.send_message(message.author, 'Found the following:')
+            await client.send_message(message.author, 'Found ``' + files '`` doujinshi')
             await client.send_typing(message.author)
             pages = (int(files / 11)) + 1
             await client.send_message(message.author, '[DEBUG] Pages: ' + str(pages))
             if pages == 1:
-                print('inside just one page condition')
+                print('inside 1 page condition')
                 while i < num + files:
                     print(i)
                     currentline = lines[i]
@@ -84,7 +84,7 @@ async def on_message(message):
                     #await bot.send_message(message.channel, currentline) #Debug
                     choice = choice + 1
                     i = i + 1
-                    if i == files:
+                    if choice == files:
                         break
                         await client.send_message(message.author, 'Type a selection to continue...')
                         pick = await client.wait_for_message(timeout=20.0, author=message.author)
@@ -97,42 +97,43 @@ async def on_message(message):
                     else:
                         continue
             else: #when there is more than one page
-                print('inside more than one page condition!')
+                print('inside +1 page condition!')
+                choice = 1
                 currentpage = 1
                 while currentpage <= pages:
                     print(currentpage)
-                    await client.send_message(message.author, 'Page number ``' + str(currentpage) + '``:')
-                    while i < num + files:
-                        while i < currentpage * 10 + 1:
-                                print(i)
-                                currentline = lines[i]
-                                name = currentline.rstrip('\n').split(':')[0]
-                                await client.send_message(message.author, '``' +str(choice) + '``) ' + name)
-                                await client.send_typing(message.author)
-                                #await bot.send_message(message.channel, currentline) #Debug
-                                choice = choice + 1
-                                i = i + 1
-                                if i == files:
+                    while choice < currentpage * 10 + 1:
+                        await client.send_message(message.author, 'Page number ``' + str(currentpage) + '``/``' + str(pages) + '``:')
+                        while i < num + files:
+                            print(i)
+                            currentline = lines[i]
+                            name = currentline.rstrip('\n').split(':')[0]
+                            await client.send_message(message.author, '``' +str(choice) + '``) ' + name)
+                            await client.send_typing(message.author)
+                            #await bot.send_message(message.channel, currentline) #Debug
+                            choice = choice + 1
+                            i = i + 1
+                            print(currentpage * 10 + 1)
+                            if choice > currentpage * 10:
+                                pagesleft = pages - currentpage
+                                await client.send_message(message.author, 'Page end reached (``' + str(pagesleft) + '`` pages left).\nType a selection to continue.\nIf you want to countinue type ``next``. If you want to stop, type ``exit`` instead!')
+                                pick = await client.wait_for_message(timeout=20.0, author=message.author)
+                                if pick is None:
+                                    await client.send_message(message.author, 'Timed out, try again!')
+                                    return
+                                if pick.content  == "exit":
+                                    await client.send_message(message.author, 'Dump cancelled')
+                                    return
+                                if pick.content == "next":
+                                    currentpage = currentpage + 1
                                     break
-                                else:
-                                    continue
-                                if i < currentpage * 10 + 1:
-                                    pagesleft = pages - currentpage
-                                    await client.send_message(message.author, 'Page end reached. ``' + str(pagesleft) + '`` pages left.\nType a selection to continue.\nIf you want to countinue type ``next``. If you want to stop, type ``exit`` instead!')
-                                    pick = await client.wait_for_message(timeout=20.0, author=message.author)
-                                    if pick is None:
-                                        await client.send_message(message.author, 'Timed out, try again!')
-                                        return
-                                    if pick  == "exit":
-                                        await client.send_message(message.author, 'Dump cancelled')
-                                        return
-                                    if pick == "next":
-                                        currentpage = currentpage + 1
-                                        break
-                                    if int(pick.content) <= files:
-                                            doujinshiline = num + int(pick.content) - 1
-                                            dump_doujinshi(doujinshiline, message)
-            
+                                if int(pick.content) <= files:
+                                        doujinshiline = num + int(pick.content) - 1
+                                        dump_doujinshi(doujinshiline, message)
+                            if choice == files:
+                                break
+                            else:
+                                continue
 
     if message.content.startswith('!listshows'):
         await client.send_message(message.channel, 'Shows in my database: (this might take a while)')
