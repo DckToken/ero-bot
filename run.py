@@ -20,27 +20,6 @@ async def on_message(message):
             await asyncio.sleep(2)
             await client.purge_from(message.channel, check=my_message)
 
-    if message.content.startswith('!exact '):
-        query = str(message.content.split('!search ')[1])
-        for line in open('list.txt'):
-            if query in line:
-                name = line.rstrip('\n').split(':')[0]
-                await client.send_message(message.channel, 'Doujinshi name: ' + name)
-                filename = line.rstrip('\n').split(':')[1]
-                await client.send_message(message.channel, 'Filename: ' + filename)
-                pages = int(line.rstrip('\n').split(':')[2])
-                await client.send_message(message.channel, 'Number of pages: ' + str(pages))
-                extension = line.rstrip('\n').split(':')[3]
-                await client.send_message(message.channel, 'File extension: ' + extension)
-                print('Starting dump on ' + str(message.author) + "'s direct message")
-                i = 1
-                while i < pages + 1:
-                    await client.send_file(message.author, query + '/' + name + '/' + filename + str(i) + '.jpg')
-                    await asyncio.sleep(1)
-                    print('Sent file ' + str(i))
-                    i = i + 1
-                print('Dump finished!')
-
     if message.content.startswith('!search '):
         arg = str(message.content.split('!search ')[1])
         query = "~" + arg + "|"
