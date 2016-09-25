@@ -206,6 +206,8 @@ async def on_message(message):
     if message.content.startswith('!exact'):
         arg = message.content.split('!exact ')[1]
         await client.send_message(message.channel, arg)
+        show = arg.split('; ')[0]
+        name = arg.split('; ')[1]
         await client.send_message(message.channel, 'Show name: ``' + show + '``\nDoujinshi name: ``' + name + '``')
 
 def file_len(fname):
