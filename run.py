@@ -203,6 +203,10 @@ async def on_message(message):
             await client.send_message(message.channel, '''Commands aviable: ``%s``.
             Use ``!help <command>`` for further help!''') % commands
 
+    if message.content.startswith('!exact'):
+        arg = message.content.split('!exact ')[1]
+        await client.send_message(message.channel, arg)
+        await client.send_message(message.channel, 'Show name: ``' + show + '``\nDoujinshi name: ``' + name + '``')
 
 def file_len(fname):
     with open(fname) as f:
