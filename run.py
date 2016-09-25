@@ -205,7 +205,7 @@ async def on_message(message):
 
     if message.content.startswith('!exact'):
         arg = message.content.split('!exact ')[1]
-        await client.send_message(message.channel, arg) #Debug
+        #await client.send_message(message.channel, arg) #Debug
         show = arg.split('; ')[0]
         try:
             name = arg.split('; ')[1]
@@ -222,7 +222,7 @@ async def on_message(message):
             l = 0
             while l < num_lines:
                 currentline = lines[l]
-                print(currentline) #Debug
+                #print(currentline) #Debug
                 files = int(currentline.split('|')[1])
                 await client.send_typing(message.channel)
                 if showquery.lower() in currentline.lower():
@@ -240,18 +240,21 @@ async def on_message(message):
                 l = l + 1
                 showline = l
                 await client.send_message(message.channel, 'Show found!')
-                await client.send_message(message.channel, 'Current line: ``' + currentline + '``') #Debug
-                await client.send_message(message.channel, '[DEBUG] Max: ' + str(showline + files - 1))
+                #await client.send_message(message.channel, 'Current line: ``' + currentline + '``') #Debug
+                #await client.send_message(message.channel, '[DEBUG] Max: ' + str(showline + files - 1))
                 while l <= showline + files - 1:
                     currentline = lines[l]
                     await client.send_typing(message.channel)
                     if name.lower() in currentline.lower():
-                        await client.send_message(message.channel, 'Name found too!')
+                        await client.send_message(message.channel, 'Doujinshi found too!')
                         await dump_doujinshi(l, message, lines, showline)
                         return
                     else:
                         #await client.send_message(message.channel, '[DEBUG] Not found, current line is ``' + currentline + '`` and l is ``' + str(l) + '``')
                         l = l + 1
+                        error = True
+                if error == True:
+                    await client.send_message(message.channel, 'Doujinshi not found, check ``!search ' + show + '``!')
 
 
 def file_len(fname):
