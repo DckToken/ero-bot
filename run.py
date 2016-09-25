@@ -146,12 +146,15 @@ async def on_message(message):
                 await client.send_message(message.channel, "**·** ``" + name + '`` (``' + files + '`` doujinshis!)')
                 l = l + int(files) + 2
                 i = i + 1
-                pages = (int(i / 11)) + 1
-                if i >= 10:
-                    howdoicallthis = int(str(i)[:-1])
-                else:
+                try:
+                    howdoicallthis = int(str(i)[:-1]) + 1
+                except ValueError:
                     howdoicallthis = 0
-                if pages < howdoicallthis:
+                pages = (int(i / 11)) + 1
+                print('i is: ' + str(i))
+                print('pages is: ' + str(pages))
+                print('howdoicallthis is: ' + str(howdoicallthis))
+                if howdoicallthis > pages:
                     await client.send_message(message.channel, 'Type ``next`` to show next page or ``exit`` to stop.')
                     pick = await client.wait_for_message(timeout=20.0, author=message.author)
                     if pick.content == "exit":
