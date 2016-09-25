@@ -207,8 +207,37 @@ async def on_message(message):
         arg = message.content.split('!exact ')[1]
         await client.send_message(message.channel, arg)
         show = arg.split('; ')[0]
-        name = arg.split('; ')[1]
-        await client.send_message(message.channel, 'Show name: ``' + show + '``\nDoujinshi name: ``' + name + '``')
+        try:
+            name = arg.split('; ')[1]
+        except IndexError:
+            await client.send_message(message.channel, 'Only one argument given. Try ``!exact <show>; <doujinshi>`` next time!')
+        else:
+            pass
+        await client.send_message(message.channel, 'Show name: ``' + show + '``\nDoujinshi name: ``' + name + '``') #Debug
+        showquery = '~' + show + '|'
+        with open('list.txt') as f:
+            lines=f.readlines()
+            num_lines = file_len('list.txt') - 1
+            l = 0
+            while l < num_lines:
+                currentline = lines[l]
+                print(currentline) #Debug
+                if showquery.lower() in currentline.lower():
+                    show = currentline.split('~')[1]
+                    show = show.split('|')[0]
+                    error = False
+                    break
+                else:
+                    files = currentline.split('|')[1]
+                    l += int(files) + 2
+                    error = True
+            if error == True:
+                await client.send_message(message.channel, 'Show not found, check shows using ``!listshows``')
+                return
+            if error == False:
+                await client.send_message(message.channel, 'Show found!')
+                await client.send_message(message.channel, 'Current line: ``' + currentline + '``') #Debug
+
 
 def file_len(fname):
     with open(fname) as f:
