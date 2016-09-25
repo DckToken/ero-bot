@@ -155,9 +155,10 @@ async def on_message(message):
                 print('pages is: ' + str(pages))
                 print('howdoicallthis is: ' + str(howdoicallthis))
                 if howdoicallthis > pages:
-                    await client.send_message(message.channel, 'Type ``next`` to show next page or ``exit`` to stop.')
+                    await client.send_message(message.channel, '**Page end reached**.\nIf you want to countinue type ``next``. If you want to stop, type ``exit`` instead!')
                     pick = await client.wait_for_message(timeout=20.0, author=message.author)
                     if pick.content == "exit":
+                        await client.send_message(message.channel, 'If you want a show added, use ``!suggest <show name>``')
                         return
                     if pick.content == None:
                         await client.send_message(message.author, 'Timed out, automatically exited!')
