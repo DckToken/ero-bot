@@ -58,8 +58,8 @@ async def on_message(message):
                     print(i)
                     currentline = lines[i]
                     name = currentline.rstrip('\n').split(':')[0]
-                    files = currentline.rstrip('\n').split(':')[2]
-                    await client.send_message(message.author, '``' +str(choice) + '``) ' + name + ' (``' + files + '`` pages)')
+                    doujinshifiles = currentline.rstrip('\n').split(':')[2]
+                    await client.send_message(message.author, '``' +str(choice) + '``) ' + name + ' (``' + doujinshifiles + '`` pages)')
                     await client.send_typing(message.author)
                     #await bot.send_message(message.channel, currentline) #Debug
                     choice = choice + 1
@@ -91,7 +91,8 @@ async def on_message(message):
                             print('files; ' + str(files))
                             currentline = lines[i] #starts at index 0, be careful!
                             name = currentline.rstrip('\n').split(':')[0]
-                            await client.send_message(message.author, '``' +str(choice) + '``) ' + name)
+                            doujinshifiles = currentline.rstrip('\n').split(':')[2]
+                            await client.send_message(message.author, '``' +str(choice) + '``) ' + name + ' (``' + doujinshifiles + '`` pages)')
                             await client.send_typing(message.author)
                             #await bot.send_message(message.channel, currentline) #Debug
                             choice = choice + 1
