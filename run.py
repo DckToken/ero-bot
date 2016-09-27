@@ -58,7 +58,8 @@ async def on_message(message):
                     print(i)
                     currentline = lines[i]
                     name = currentline.rstrip('\n').split(':')[0]
-                    await client.send_message(message.author, '``' +str(choice) + '``) ' + name)
+                    files = currentline.rstrip('\n').split(':')[2]
+                    await client.send_message(message.author, '``' +str(choice) + '``) ' + name + ' (``' + files + '`` pages)')
                     await client.send_typing(message.author)
                     #await bot.send_message(message.channel, currentline) #Debug
                     choice = choice + 1
