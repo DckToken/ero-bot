@@ -291,7 +291,7 @@ async def dump_doujinshi(doujinshiline, message, lines, num):
         #await asyncio.sleep(1) #lib handles ratelimits
         #await client.send_message(message.author, 'Page number ``' + str(i) + '``')
         #await client.send_file(message.author, show + '/' + name + '/' + filename + str(i) + '.' + extension)
-        content = "Page ``{}``".format(str(i))
+        content = "Page ``{}``/``{}``".format(str(i), str(pages))
         await client.send_file(message.author, path, content=content)
         print('Sent file ' + str(i))
         i = i + 1
