@@ -276,6 +276,10 @@ async def joined_at(ctx, member: discord.Member = None):
 
     await bot.say('{0} joined at {0.joined_at}'.format(member))
 
+@bot.command(pass_context=True)
+async def dm_me(ctx):
+    await bot.send_message(ctx.message.author, "Slidin' onto your dms boi")
+
 
 def file_len(fname):
     with open(fname) as f:
