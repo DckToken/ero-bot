@@ -105,10 +105,10 @@ async def on_message(message):
                                 if pick is None:
                                     await client.send_message(message.author, 'Timed out, try again!')
                                     return
-                                if pick.content  == "exit":
+                                if pick.content.lower()  == "exit":
                                     await client.send_message(message.author, 'Dump cancelled')
                                     return
-                                if pick.content == "next":
+                                if pick.content.lower() == "next":
                                     currentpage = currentpage + 1
                                     break
                                 if int(pick.content) <= files:
@@ -165,7 +165,7 @@ async def on_message(message):
                     if pick.content == None:
                         await client.send_message(message.author, 'Timed out, automatically exited!')
                         return
-                    if pick.content == "next":
+                    if pick.content.lower() == "next":
                         continue
                 else:
                     pass
