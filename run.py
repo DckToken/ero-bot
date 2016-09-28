@@ -269,6 +269,13 @@ async def repeat(string : str):
     """Repeat string"""
     await bot.say(string)
 
+@bot.command(pass_context=True)
+async def joined_at(ctx, member: discord.Member = None):
+    if member is None:
+        member = ctx.message.author
+
+    await bot.say('{0} joined at {0.joined_at}'.format(member))
+
 
 def file_len(fname):
     with open(fname) as f:
