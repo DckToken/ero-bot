@@ -5,6 +5,7 @@ import subprocess
 import os
 
 client = discord.Client()
+bot = commands.Bot(command_prefix='$', description="$help test!")
 
 @client.event
 async def on_message(message):
@@ -263,6 +264,11 @@ async def on_message(message):
                 if error == True:
                     await client.send_message(message.channel, 'Doujinshi not found, check ``!search ' + show + '``!')
 
+@bot.command()
+async def repeat(string : str):
+    """Repeat string"""
+    await bot.say(string)
+
 
 def file_len(fname):
     with open(fname) as f:
@@ -301,10 +307,10 @@ async def dump_doujinshi(doujinshiline, message, lines, num):
     print('Dump finished!')
 
             
-@client.event
+@bot.event
 async def on_ready():
     print('Logged in as')
-    print(client.user.name + ' (id: ' + client.user.id + ')')
+    print(bot.user.name + ' (id: ' + bot.user.id + ')')
     print('------')
     #print('Opening list.txt')
     #f = open('list.txt', 'r')
@@ -312,6 +318,6 @@ async def on_ready():
     #print('------')
     
     
-    await client.change_status(discord.Game(name='with doujinshi!'))
+    await bot.change_status(discord.Game(name='with doujinshi!'))
 token = os.getenv('TOKEN')
-client.run(token)
+bot.run(token)
