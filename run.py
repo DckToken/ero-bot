@@ -328,12 +328,12 @@ async def search(ctx, *, arg : str):
                         if pick is None:
                             await bot.send_message(ctx.message.author, 'Timed out, try again!')
                             return
-                        if int(pick.content) <= files:
-                            doujinshiline = num + int(pick.content) - 1
-                            dump_doujinshi(doujinshiline, ctx.message, lines, num)
-                            return
                         if pick.content.lower() == 'exit':
                             await bot.send_message(ctx.message.author, 'Dump cancelled')
+                            return
+                        if int(pick.content) <= files:
+                            doujinshiline = num + int(pick.content) - 1
+                            await dump_doujinshi(doujinshiline, ctx.message, lines, num)
                             return
                     i = i + 1
                     choice = choice + 1
