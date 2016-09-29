@@ -435,6 +435,17 @@ async def listshows(ctx):
     #await bot.send_message(message.channel, '[DEBUG] i value: ' + str(i))
     await bot.say('If you want a show added, use ``$suggest <show name>``')
 
+@bot.command(pass_context=True)
+async def suggest(ctx, *, show_name: str):
+    await bot.say('Running script, searching for ``' + show_name + '``...')
+    try:
+        subprocess.run(["bash", "/media/ero-bot/unpack.bash", show_name], cwd="/media/ero-bot", check=True)
+    except subprocess.CalledProcessError:
+        print('error on script')
+        await bot.say("Bash script error: Couldn't find ``" + show_name + '`` Or there was a problem extracting. Try another show name.')
+    else:
+        await bot.say('Doujinshi ``' + show_name + '`` successfully added!')
+
 def file_len(fname):
     with open(fname) as f:
         for i, l in enumerate(f):
