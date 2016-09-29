@@ -295,7 +295,7 @@ async def search(ctx, *, arg : str):
         print(error) #Debug
         #There must be a better way than a bool check, but fuck it
         if error is True:
-            await bot.say('Not found! Try an exact show name, please.')
+            await bot.say('Not found! Try an exact show name or use ``$listshows``')
         elif error is False:
             print(num) #Debug
             print(line) #Debug
@@ -388,6 +388,52 @@ async def search(ctx, *, arg : str):
                                         doujinshiline = num + int(pick.content) - 1
                                         await dump_doujinshi(doujinshiline, ctx.message, lines, num)
                                         return
+
+@bot.command(pass_context=True)
+async def listshows(ctx):
+    await bot.say('Shows in my database:')
+    i = 0
+    with open('list.txt') as f:
+        lines=f.readlines()
+        num_lines = file_len('list.txt')
+        l = 0
+        i = 1
+        print(num_lines)
+        while l < num_lines + 1:
+            await bot.send_typing(ctx.message.channel)
+            currentline = lines[l]
+            print(currentline)
+            name = currentline.rstrip('\n').split('|')[0]
+            name = name.split('~')[1]
+            files = currentline.rstrip('\n').split('|')[1]
+            await bot.say("**·** ``" + name + '`` (``' + files + '`` doujinshis!)')
+            l = l + int(files) + 2
+            i = i + 1
+            try:
+                howdoicallthis = int(str(i)[:-1]) + 1
+            except ValueError:
+                howdoicallthis = 0
+            pages = (int(i / 11)) + 1
+            print('i is: ' + str(i))
+            print('pages is: ' + str(pages))
+            print('howdoicallthis is: ' + str(howdoicallthis))
+            if howdoicallthis > pages:
+                await bot.say('**Page end reached**.\nIf you want to countinue type ``next``. If you want to stop, type ``exit`` instead!')
+                pick = await bot.wait_for_message(timeout=20.0, author=(ctx.message.author))
+                if pick.content.lower() == "exit":
+                    await bot.say('If you want a show added, use ``$suggest <show name>``')
+                    return
+                if pick.content == None:
+                    await bot.say('Timed out, automatically exited!')
+                    return
+                if pick.content.lower() == "next":
+                    continue
+            else:
+                pass
+    #await bot.send_message(message.channel, '[DEBUG] howdoicallthis value: ' + str(howdoicallthis))
+    #await bot.send_message(message.channel, '[DEBUG] pages value: ' + str (pages))
+    #await bot.send_message(message.channel, '[DEBUG] i value: ' + str(i))
+    await bot.say('If you want a show added, use ``$suggest <show name>``')
 
 def file_len(fname):
     with open(fname) as f:
