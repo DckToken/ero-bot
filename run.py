@@ -373,7 +373,7 @@ async def search(ctx, *, arg : str):
                                     break
                                 if int(pick.content) <= files:
                                         doujinshiline = num + int(pick.content) - 1
-                                        await dump_doujinshi(doujinshiline, message, lines, num)
+                                        await dump_doujinshi(doujinshiline, ctx.message, lines, num)
                                         return
                             if choice > currentpage * 10 or choice == files + 1 and pagesleft == 0:
                                 await bot.send_message(ctx.message.author, '**Last page reached.**\nType a selection to continue or type ``exit`` to cancel')
