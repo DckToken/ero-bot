@@ -322,11 +322,8 @@ async def search(ctx, *, arg : str):
                     await bot.send_message(ctx.message.author, '``' +str(choice) + '``) ' + name + ' (``' + doujinshifiles + '`` pages)')
                     await bot.send_typing(ctx.message.author)
                     #await bot.send_message(message.channel, currentline) #Debug
-                    choice = choice + 1
-                    i = i + 1
                     if choice == files:
-                        break
-                        await bot.send_message(ctx.message.author, 'Type a selection to continue...')
+                        await bot.send_message(ctx.message.author, '**Last page reached.**\nType a selection to continue or type ``exit`` to cancel')
                         pick = await bot.wait_for_message(timeout=20.0, author=ctx.message.author)
                         if pick is None:
                             await bot.send_message(ctx.message.author, 'Timed out, try again!')
@@ -335,8 +332,11 @@ async def search(ctx, *, arg : str):
                             doujinshiline = num + int(pick.content) - 1
                             dump_doujinshi(doujinshiline, ctx.message, lines, num)
                             return
-                    else:
-                        continue
+                        if pick.content.lower() == 'exit':
+                            await bot.send_message(ctx.message.author, 'Dump cancelled')
+                            return
+                    i = i + 1
+                    choice = choice + 1
             else: #when there is more than one page
                 print('inside +1 page condition!')
                 choice = 1
