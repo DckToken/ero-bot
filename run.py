@@ -5,11 +5,13 @@ import subprocess
 import os
 
 client = discord.Client()
-bot = commands.Bot(command_prefix='$', description="$help test!")
+bot = commands.Bot(command_prefix='$', description="Ero-bot is a lewd h-manga and doujinshi bot!")
 
 
 @bot.command(pass_context=True)
-async def search(ctx, *, arg : str):
+async def search(ctx, *, show_name : str):
+    """Searches for a show and lists all related doujinshi."""
+    arg = show_name
     query = "~" + arg + "|"
     print('Query: ' + query) #Debug
     with open('list.txt') as f:
@@ -119,6 +121,7 @@ async def search(ctx, *, arg : str):
 
 @bot.command(pass_context=True)
 async def listshows(ctx):
+    """Lists every show in the database."""
     await bot.say('Shows in my database:')
     i = 0
     with open('list.txt') as f:
@@ -165,6 +168,7 @@ async def listshows(ctx):
 
 @bot.command(pass_context=True)
 async def suggest(ctx, *, show_name: str):
+    """Adds a show to the database."""
     await bot.say('Running script, searching for ``' + show_name + '``...')
     try:
         subprocess.run(["bash", "/media/ero-bot/unpack.bash", show_name], cwd="/media/ero-bot", check=True)
@@ -175,9 +179,10 @@ async def suggest(ctx, *, show_name: str):
         await bot.say('Doujinshi ``' + show_name + '`` successfully added!')
 
 @bot.command(pass_context=True)
-async def exact(ctx, show : str, name : str):
+async def exact(ctx, show_name : str, name : str):
+    """Dumps a doujinshi by providing the show and the exact name."""
     #await bot.send_message(message.channel, 'Show name: ``' + show + '``\nDoujinshi name: ``' + name + '``') #Debug
-    showquery = '~' + show + '|'
+    showquery = '~' + show_name + '|'
     with open('list.txt') as f:
         lines=f.readlines()
         num_lines = file_len('list.txt')
@@ -217,7 +222,7 @@ async def exact(ctx, show : str, name : str):
                     error = True
             if error == True:
                 await bot.say('Doujinshi not found, check ``$search ' + show + '``!')
-                
+
 
 def file_len(fname):
     with open(fname) as f:
