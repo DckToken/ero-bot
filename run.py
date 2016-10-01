@@ -265,9 +265,11 @@ async def on_message(message):
                     await bot.send_message(message.channel, 'Doujinshi not found, check ``!search ' + show + '``!')
 
 @bot.command()
-async def repeat(string : str):
+async def repeat(string : str, next : str):
     """Repeat string"""
     await bot.say(string)
+    await bot.say(next)
+    print(next)
 
 @bot.command(pass_context=True)
 async def joined_at(ctx, member: discord.Member = None):
@@ -446,6 +448,59 @@ async def suggest(ctx, *, show_name: str):
     else:
         await bot.say('Doujinshi ``' + show_name + '`` successfully added!')
 
+@bot.command(pass_context=True)
+async def exact(ctx, show : str, name : str):
+    #await bot.send_message(message.channel, arg) #Debug
+    show = arg.split('; ')[0]
+    try:
+        name = arg.split('; ')[1]
+    except IndexError:
+        await bot.send_message(message.channel, 'Only one argument given. Try ``$exact "<show>" "<doujinshi>"`` next time!')
+        return
+    else:
+        pass
+    #await bot.send_message(message.channel, 'Show name: ``' + show + '``\nDoujinshi name: ``' + name + '``') #Debug
+    showquery = '~' + show + '|'
+    with open('list.txt') as f:
+        lines=f.readlines()
+        num_lines = file_len('list.txt')
+        l = 0
+        while l < num_lines:
+            currentline = lines[l]
+            #print(currentline) #Debug
+            files = int(currentline.split('|')[1])
+            await bot.send_typing(message.channel)
+            if showquery.lower() in currentline.lower():
+                show = currentline.split('~')[1]
+                show = show.split('|')[0]
+                error = False
+                break
+            else:
+                l += files + 2
+                error = True
+        if error == True:
+            await bot.send_message(message.channel, 'Show not found, check show names using ``!listshows``')
+            return
+        if error == False:
+            l = l + 1
+            showline = l
+            await bot.send_message(message.channel, 'Show found!')
+            #await bot.send_message(message.channel, 'Current line: ``' + currentline + '``') #Debug
+            #await bot.send_message(message.channel, '[DEBUG] Max: ' + str(showline + files - 1))
+            while l <= showline + files - 1:
+                currentline = lines[l]
+                await bot.send_typing(message.channel)
+                if name.lower() in currentline.lower():
+                    await bot.send_message(message.channel, 'Doujinshi found too!')
+                    await dump_doujinshi(l, message, lines, showline)
+                    return
+                else:
+                    #await bot.send_message(message.channel, '[DEBUG] Not found, current line is ``' + currentline + '`` and l is ``' + str(l) + '``')
+                    l = l + 1
+                    error = True
+            if error == True:
+                await bot.send_message(message.channel, 'Doujinshi not found, check ``!search ' + show + '``!')
+
 def file_len(fname):
     with open(fname) as f:
         for i, l in enumerate(f):
@@ -492,8 +547,12 @@ async def on_ready():
     #f = open('list.txt', 'r')
     #print('Everything done!')
     #print('------')
-    
-    
     await bot.change_status(discord.Game(name='with doujinshi!'))
+
+@bot.event
+async def on_command_error(err, ctx):
+    print('Error ' + str(err) + ' catched!')
+    await bot.send_message(ctx.message.channel, 'Error! ``' + str(err) + '``\nContact @TheGooDFeelinG#4615 for help!')
+
 token = os.getenv('TOKEN')
 bot.run(token)
