@@ -450,15 +450,6 @@ async def suggest(ctx, *, show_name: str):
 
 @bot.command(pass_context=True)
 async def exact(ctx, show : str, name : str):
-    #await bot.send_message(message.channel, arg) #Debug
-    show = arg.split('; ')[0]
-    try:
-        name = arg.split('; ')[1]
-    except IndexError:
-        await bot.send_message(message.channel, 'Only one argument given. Try ``$exact "<show>" "<doujinshi>"`` next time!')
-        return
-    else:
-        pass
     #await bot.send_message(message.channel, 'Show name: ``' + show + '``\nDoujinshi name: ``' + name + '``') #Debug
     showquery = '~' + show + '|'
     with open('list.txt') as f:
@@ -469,7 +460,7 @@ async def exact(ctx, show : str, name : str):
             currentline = lines[l]
             #print(currentline) #Debug
             files = int(currentline.split('|')[1])
-            await bot.send_typing(message.channel)
+            await bot.send_typing(ctx.message.channel)
             if showquery.lower() in currentline.lower():
                 show = currentline.split('~')[1]
                 show = show.split('|')[0]
@@ -479,27 +470,27 @@ async def exact(ctx, show : str, name : str):
                 l += files + 2
                 error = True
         if error == True:
-            await bot.send_message(message.channel, 'Show not found, check show names using ``!listshows``')
+            await bot.say('Show not found, check show names using ``!listshows``')
             return
         if error == False:
             l = l + 1
             showline = l
-            await bot.send_message(message.channel, 'Show found!')
+            await bot.say('Show found!')
             #await bot.send_message(message.channel, 'Current line: ``' + currentline + '``') #Debug
             #await bot.send_message(message.channel, '[DEBUG] Max: ' + str(showline + files - 1))
             while l <= showline + files - 1:
                 currentline = lines[l]
-                await bot.send_typing(message.channel)
+                await bot.send_typing(ctx.message.channel)
                 if name.lower() in currentline.lower():
-                    await bot.send_message(message.channel, 'Doujinshi found too!')
-                    await dump_doujinshi(l, message, lines, showline)
+                    await bot.say('Doujinshi found too!')
+                    await dump_doujinshi(l, ctx.message, lines, showline)
                     return
                 else:
                     #await bot.send_message(message.channel, '[DEBUG] Not found, current line is ``' + currentline + '`` and l is ``' + str(l) + '``')
                     l = l + 1
                     error = True
             if error == True:
-                await bot.send_message(message.channel, 'Doujinshi not found, check ``!search ' + show + '``!')
+                await bot.say('Doujinshi not found, check ``$search ' + show + '``!')
 
 def file_len(fname):
     with open(fname) as f:
