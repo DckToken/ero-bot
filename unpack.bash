@@ -19,3 +19,5 @@ for (( i = 1; i < $OUTPUT + 1; i++ )); do #for every doujinshi do
 	echo "$LINE:$FILENAME:$PAGES:$EXT" >> $FILE
 	cd ..
 done
+cd /media/doujinshi
+rm "$ARG.zip"
