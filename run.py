@@ -193,13 +193,13 @@ async def exact(ctx, show_name : str, name : str):
                 await bot.say('Doujinshi not found, check ``$search ' + show + '``!')
 
 @bot.command()
-async def travis(command : str):
+async def travis(command : str="none", ):
     if travis is None:
         if command.lower() == "uptime":
             await bot.say("The **local** system uptime is:``", uptime() + "``")
         if command.lower() == "stop":
             await bot.say("``On a local enviroment. Ignoring stop command``")
-        else:
+        if command.lower() == "none":
             await bot.say("``Currently on a local enviroment!``\nCommands aviable: ``uptime``")
     else:
         if command.lower() == "stop":
@@ -207,12 +207,11 @@ async def travis(command : str):
             exit(0)
         if command.lower() == "uptime":
             await bot.say("The **Travis CI** system uptime is:`` " + uptime() + "``")
-        else:
+        if command.lower() == "none":
             await bot.say("``Currently on a Travis CI build!``\nCommands aviable: ``stop``, ``uptime``")
 
 
 def uptime():
-
      try:
          f = open( "/proc/uptime" )
          contents = f.read().split()
@@ -280,12 +279,9 @@ async def on_ready():
     await bot.change_status(discord.Game(name='with doujinshi!'))
     if travis is None:
         print('Running on local enviroment.')
-    if travis is "TRUE":
+    else:
         print('Running in a Travis enviroment')
         await bot.change_status(discord.Game(name='with doujinshi! [TRAVIS CI]')) #debug
-    else:
-        print('Error determining Travis build status!')
-        print(travis) #debug
 
 @bot.event
 async def on_command_error(err, ctx):
