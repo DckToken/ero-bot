@@ -284,7 +284,7 @@ async def on_ready():
         await bot.change_status(discord.Game(name='with doujinshi! [TRAVIS CI]')) #debug
         i = 1
         while True:
-            print("Run number " + str(i) + ". Waiting 9 minutes")
+            print("Loop number " + str(i) + ". Running for " + str(9 * i) + " minutes.")
             i = i + 1
             await asyncio.sleep(540)
 
