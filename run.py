@@ -192,6 +192,58 @@ async def exact(ctx, show_name : str, name : str):
             if error == True:
                 await bot.say('Doujinshi not found, check ``$search ' + show + '``!')
 
+@bot.command()
+async def travis(command : str):
+    if travis is None:
+        if command.lower() == "uptime":
+            await bot.say("The **local** system uptime is:``", uptime() + "``")
+        if command.lower() == "stop":
+            await bot.say("``On a local enviroment. Ignoring stop command``")
+        else:
+            await bot.say("``Currently on a local enviroment!``\nCommands aviable: ``uptime``")
+    else:
+        if command.lower() == "stop":
+            await bot.say("``Stoping Travis build with exit code 0``")
+            exit(0)
+        if command.lower() == "uptime":
+            await bot.say("The **Travis CI** system uptime is:``", uptime() + "``")
+        else:
+            await bot.say("``Currently on a Travis CI build!``\nCommands aviable: ``stop``, ``uptime``")
+
+
+def uptime():
+
+     try:
+         f = open( "/proc/uptime" )
+         contents = f.read().split()
+         f.close()
+     except:
+        return "Cannot open uptime file: /proc/uptime"
+
+     total_seconds = float(contents[0])
+
+     # Helper vars:
+     MINUTE  = 60
+     HOUR    = MINUTE * 60
+     DAY     = HOUR * 24
+
+     # Get the days, hours, etc:
+     days    = int( total_seconds / DAY )
+     hours   = int( ( total_seconds % DAY ) / HOUR )
+     minutes = int( ( total_seconds % HOUR ) / MINUTE )
+     seconds = int( total_seconds % MINUTE )
+
+     # Build up the pretty string (like this: "N days, N hours, N minutes, N seconds")
+     string = ""
+     if days > 0:
+         string += str(days) + " " + (days == 1 and "day" or "days" ) + ", "
+     if len(string) > 0 or hours > 0:
+         string += str(hours) + " " + (hours == 1 and "hour" or "hours" ) + ", "
+     if len(string) > 0 or minutes > 0:
+         string += str(minutes) + " " + (minutes == 1 and "minute" or "minutes" ) + ", "
+     string += str(seconds) + " " + (seconds == 1 and "second" or "seconds" )
+
+     return string;
 
 def file_len(fname):
     with open(fname) as f:
@@ -226,6 +278,12 @@ async def on_ready():
     print('Logged in as ' + bot.user.name + ' (id: ' + bot.user.id + ')')
     print('------')
     await bot.change_status(discord.Game(name='with doujinshi!'))
+    travis = os.getenv('TRAVIS')
+    if travis is None:
+        print('Running on local enviroment.')
+    if travis is "TRUE":
+        print('Running in a Travis enviroment')
+        await bot.change_status(discord.Game(name='with doujinshi! [TRAVIS CI]')) #debug
 
 @bot.event
 async def on_command_error(err, ctx):
