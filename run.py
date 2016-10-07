@@ -285,6 +285,7 @@ async def on_ready():
         await bot.change_status(discord.Game(name='with doujinshi! [TRAVIS CI]')) #debug
     else:
         print('Error determining Travis build status!')
+        print(travis) #debug
 
 @bot.event
 async def on_command_error(err, ctx):
