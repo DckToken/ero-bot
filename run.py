@@ -3,6 +3,7 @@ from discord.ext import commands
 import asyncio
 import subprocess
 import os
+from random import randint
 
 client = discord.Client()
 bot = commands.Bot(command_prefix='$', description="Ero-bot is a lewd h-manga and doujinshi bot!")
@@ -193,7 +194,7 @@ async def exact(ctx, show_name : str, name : str):
                 await bot.say('Doujinshi not found, check ``$search ' + show + '``!')
 
 @bot.command()
-async def travis(command : str="none", ):
+async def travis(command : str="none"):
     if travis is None:
         if command.lower() == "uptime":
             await bot.say("The **local** system uptime is: ``" + uptime() + "``")
@@ -209,6 +210,12 @@ async def travis(command : str="none", ):
             await bot.say("The **Travis CI** system uptime is:`` " + uptime() + "``")
         if command.lower() == "none":
             await bot.say("``Currently on a Travis CI build!``\nCommands aviable: ``stop``, ``uptime``")
+
+@bot.command()
+async def avi(pic : str):
+    avatar = open('/media/ero-bot/avis/' + str(pic), 'rb')
+    await bot.edit_profile(password=None, avatar=avatar.read())
+    print('Changed avi to ' + pic) # debug
 
 
 def uptime():
@@ -276,9 +283,15 @@ async def dump_doujinshi(doujinshiline, message, lines, num):
 async def on_ready():
     print('Logged in as ' + bot.user.name + ' (id: ' + bot.user.id + ')')
     print('------')
-    await bot.change_status(discord.Game(name='with doujinshi!'))
     if travis is None:
         print('Running on local enviroment.')
+        await bot.change_status(discord.Game(name='with doujinshi!'))
+        pics = subprocess.run(["bash", "/media/ero-bot/pics.bash"], cwd="/media/ero-bot/avis", stdout=subprocess.PIPE, universal_newlines=True)
+        while True:
+            i = randint(0, int(pics.stdout))
+            avatar = open('/media/ero-bot/avis/' + str(i), 'rb')
+            await bot.edit_profile(password=None, avatar=avatar.read())
+            await asyncio.sleep(900)
     else:
         print('Running in a Travis enviroment')
         await bot.change_status(discord.Game(name='with doujinshi! [TRAVIS CI]')) #debug
