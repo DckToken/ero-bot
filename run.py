@@ -282,6 +282,11 @@ async def on_ready():
     else:
         print('Running in a Travis enviroment')
         await bot.change_status(discord.Game(name='with doujinshi! [TRAVIS CI]')) #debug
+        i = 1
+        while True:
+            print("Run number " + str(i) + ". Waiting 9 minutes")
+            i = i + 1
+            async.sleep(540)
 
 @bot.event
 async def on_command_error(err, ctx):
