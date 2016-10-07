@@ -286,7 +286,7 @@ async def on_ready():
         while True:
             print("Run number " + str(i) + ". Waiting 9 minutes")
             i = i + 1
-            async.sleep(540)
+            await async.sleep(540)
 
 @bot.event
 async def on_command_error(err, ctx):
