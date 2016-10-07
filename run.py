@@ -196,7 +196,7 @@ async def exact(ctx, show_name : str, name : str):
 async def travis(command : str="none", ):
     if travis is None:
         if command.lower() == "uptime":
-            await bot.say("The **local** system uptime is:``", uptime() + "``")
+            await bot.say("The **local** system uptime is: ``" + uptime() + "``")
         if command.lower() == "stop":
             await bot.say("``On a local enviroment. Ignoring stop command``")
         if command.lower() == "none":
