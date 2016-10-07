@@ -206,7 +206,7 @@ async def travis(command : str):
             await bot.say("``Stoping Travis build with exit code 0``")
             exit(0)
         if command.lower() == "uptime":
-            await bot.say("The **Travis CI** system uptime is:``", uptime() + "``")
+            await bot.say("The **Travis CI** system uptime is:`` " + uptime() + "``")
         else:
             await bot.say("``Currently on a Travis CI build!``\nCommands aviable: ``stop``, ``uptime``")
 
@@ -278,12 +278,13 @@ async def on_ready():
     print('Logged in as ' + bot.user.name + ' (id: ' + bot.user.id + ')')
     print('------')
     await bot.change_status(discord.Game(name='with doujinshi!'))
-    travis = os.getenv('TRAVIS')
     if travis is None:
         print('Running on local enviroment.')
     if travis is "TRUE":
         print('Running in a Travis enviroment')
         await bot.change_status(discord.Game(name='with doujinshi! [TRAVIS CI]')) #debug
+    else:
+        print('Error determining Travis build status!')
 
 @bot.event
 async def on_command_error(err, ctx):
@@ -291,4 +292,5 @@ async def on_command_error(err, ctx):
     await bot.send_message(ctx.message.channel, 'Error! ``' + str(err) + '``\nContact TheGooDFeelinG#4615 for help!')
 
 token = os.getenv('TOKEN')
+travis = os.getenv('TRAVIS')
 bot.run(token)
