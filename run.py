@@ -35,7 +35,7 @@ async def search(ctx, *, show_name : str):
             await bot.send_message(ctx.message.author, 'Found ``' + str(files) + '`` doujinshi')
             await bot.send_typing(ctx.message.author)
             pages = (int(files / 11)) + 1
-            if pages == 1:
+            if pages == 1: #only one page
                 while i < num + files:
                     currentline = lines[i]
                     name = currentline.rstrip('\n').split(':')[0]
@@ -51,10 +51,16 @@ async def search(ctx, *, show_name : str):
                         if pick.content.lower() == 'exit':
                             await bot.send_message(ctx.message.author, 'Dump cancelled')
                             return
-                        if int(pick.content) <= files:
-                            doujinshiline = num + int(pick.content) - 1
-                            await dump_doujinshi(doujinshiline, ctx.message, lines, num)
+                        try:
+                            int(pick.content)
                             return
+                        except ValueError:
+                            await bot.send_message(ctx.message.author, 'Only ``exit`` or a doujinshi number supported, exiting...')
+                        else:
+                            if int(pick.content) <= files:
+                                doujinshiline = num + int(pick.content) - 1
+                                await dump_doujinshi(doujinshiline, ctx.message, lines, num)
+                                return
                     i = i + 1
                     choice = choice + 1
             else: #when there is more than one page
@@ -84,10 +90,16 @@ async def search(ctx, *, show_name : str):
                                 if pick.content.lower() == "next":
                                     currentpage = currentpage + 1
                                     break
-                                if int(pick.content) <= files:
-                                        doujinshiline = num + int(pick.content) - 1
-                                        await dump_doujinshi(doujinshiline, ctx.message, lines, num)
-                                        return
+                                try:
+                                    int(pick.content)
+                                except ValueError:
+                                    await bot.send_message(ctx.message.author, 'Only ``next``, ``exit`` or a doujinshi number supported, exiting...')
+                                    return
+                                else:
+                                    if int(pick.content) <= files:
+                                            doujinshiline = num + int(pick.content) - 1
+                                            await dump_doujinshi(doujinshiline, ctx.message, lines, num)
+                                            return
                             if choice > currentpage * 10 or choice == files + 1 and pagesleft == 0:
                                 await bot.send_message(ctx.message.author, '**Last page reached.**\nType a selection to continue or type ``exit`` to cancel')
                                 pick = await bot.wait_for_message(timeout=20.0, author=ctx.message.author)
@@ -97,10 +109,15 @@ async def search(ctx, *, show_name : str):
                                 if pick.content  == "exit":
                                     await bot.send_message(ctx.message.author, 'Dump cancelled')
                                     return
-                                if int(pick.content) <= files:
-                                        doujinshiline = num + int(pick.content) - 1
-                                        await dump_doujinshi(doujinshiline, ctx.message, lines, num)
-                                        return
+                                try:
+                                    int(pick.content)
+                                except ValueError:
+                                    await bot.send_message(ctx.message.author, 'Only ``exit`` or a doujinshi number supported, exiting...')
+                                else:
+                                    if int(pick.content) <= files:
+                                            doujinshiline = num + int(pick.content) - 1
+                                            await dump_doujinshi(doujinshiline, ctx.message, lines, num)
+                                            return
 
 @bot.command(pass_context=True)
 async def listshows(ctx):
@@ -138,6 +155,9 @@ async def listshows(ctx):
                     return
                 if pick.content.lower() == "next":
                     continue
+                if pick.content is not "next" and pick.content is not "exit":
+                    await bot.say('Only ``next`` or ``exit`` supported, exiting...')
+                    return
             else:
                 pass
     await bot.say('If you want a show added, use ``$suggest <show name>``')
@@ -175,7 +195,7 @@ async def exact(ctx, show_name : str, name : str):
                 l += files + 2
                 error = True
         if error == True:
-            await bot.say('Show not found, check show names using ``!listshows``')
+            await bot.say('Show not found, check show names using ``$listshows``')
             return
         if error == False:
             l = l + 1
@@ -288,10 +308,12 @@ async def on_ready():
         await bot.change_status(discord.Game(name='with doujinshi!'))
         pics = subprocess.run(["bash", "/media/ero-bot/pics.bash"], cwd="/media/ero-bot/avis", stdout=subprocess.PIPE, universal_newlines=True)
         while True:
-            i = randint(0, int(pics.stdout))
+            i = randint(1, int(pics.stdout))
             avatar = open('/media/ero-bot/avis/' + str(i), 'rb')
             await bot.edit_profile(password=None, avatar=avatar.read())
+            print('Changed avatar to "' + str(i) + '", waiting 15 minutes...')
             await asyncio.sleep(900)
+            pics = subprocess.run(["bash", "/media/ero-bot/pics.bash"], cwd="/media/ero-bot/avis", stdout=subprocess.PIPE, universal_newlines=True)
     else:
         print('Running in a Travis enviroment')
         await bot.change_status(discord.Game(name='with doujinshi! [TRAVIS CI]')) #debug
@@ -303,8 +325,8 @@ async def on_ready():
 
 @bot.event
 async def on_command_error(err, ctx):
-    print('Error ' + str(err) + ' catched!')
-    await bot.send_message(ctx.message.channel, 'Error! ``' + str(err) + '``\nContact TheGooDFeelinG#4615 for help!')
+    print('Error: ' + str(err))
+    await bot.send_message(ctx.message.channel, 'Error! ``' + str(err) + '``\nContact ``Dick Token#4615`` for help!')
 
 token = os.getenv('TOKEN')
 travis = os.getenv('TRAVIS')
