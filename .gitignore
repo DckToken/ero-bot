@@ -1,5 +1,6 @@
 #Ignore all folders
 */
+#But don't ignore docs folder!
 #Ignore also list file
 list.txt
 LV8ECU~4
