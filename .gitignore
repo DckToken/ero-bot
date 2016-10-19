@@ -1,6 +1,6 @@
 #Ignore all folders
 */
 #But don't ignore docs folder!
+!docs
 #Ignore also list file
 list.txt
-LV8ECU~4
