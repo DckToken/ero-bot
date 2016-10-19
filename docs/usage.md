@@ -8,5 +8,6 @@ Use ``$search <show name>``, by show name refering to a show name in ``$listshow
 ##Suggesting a new doujinshi
 ```python
 #(To Do: Explain how doujinshi are stored in howdoesitwork.md)
-#(To Do: Explain how this command works in howdoesitwork.md)```
+#(To Do: Explain how this command works in howdoesitwork.md)
+```
 If you want to add a doujinshi to the database, just use ``$suggest <show name>``. Show name, unlike other commands, is case senitive.
