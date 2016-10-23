@@ -36,13 +36,17 @@ async def search(ctx, *, show_name : str):
             await bot.send_typing(ctx.message.author)
             pages = (int(files / 11)) + 1
             if pages == 1: #only one page
+                temp = []
                 while i < num + files:
                     currentline = lines[i]
                     name = currentline.rstrip('\n').split(':')[0]
                     doujinshifiles = currentline.rstrip('\n').split(':')[2]
-                    await bot.send_message(ctx.message.author, '``' +str(choice) + '``) ' + name + ' (``' + doujinshifiles + '`` pages)')
+                    temp.append('``' +str(choice) + '``) ' + name + ' (``' + doujinshifiles + '`` pages)')
                     await bot.send_typing(ctx.message.author)
                     if choice == files:
+                        print('Finished listing')
+                        for i in temp:
+                            await bot.send_message(ctx.message.author, i)
                         await bot.send_message(ctx.message.author, '**Last page reached.**\nType a selection to continue or type ``exit`` to cancel')
                         pick = await bot.wait_for_message(timeout=20.0, author=ctx.message.author)
                         if pick is None:
