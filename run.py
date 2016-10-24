@@ -44,11 +44,9 @@ async def search(ctx, *, show_name : str):
                     temp.append('``' +str(choice) + '``) ' + name + ' (``' + doujinshifiles + '`` pages)')
                     await bot.send_typing(ctx.message.author)
                     if choice == files:
-                        print('Finished listing')
-                        for i in temp:
-                            await bot.send_message(ctx.message.author, i)
-                        await bot.send_message(ctx.message.author, '**Last page reached.**\nType a selection to continue or type ``exit`` to cancel')
-                        pick = await bot.wait_for_message(timeout=20.0, author=ctx.message.author)
+                        message = '\n'.join(temp)
+                        await bot.send_message(ctx.message.author, message + '\n**Last page reached.**\nType a selection to continue or type ``exit`` to cancel')
+                        pick = await bot.wait_for_message(timeout=20.0, author=ctx.message.author, check=currentchannel)
                         if pick is None:
                             await bot.send_message(ctx.message.author, 'Timed out, try again!')
                             return
@@ -57,19 +55,22 @@ async def search(ctx, *, show_name : str):
                             return
                         try:
                             int(pick.content)
-                            return
                         except ValueError:
                             await bot.send_message(ctx.message.author, 'Only ``exit`` or a doujinshi number supported, exiting...')
+                            return
                         else:
                             if int(pick.content) <= files:
                                 doujinshiline = num + int(pick.content) - 1
                                 await dump_doujinshi(doujinshiline, ctx.message, lines, num)
                                 return
+                            else:
+                                print('error')
                     i = i + 1
                     choice = choice + 1
             else: #when there is more than one page
                 choice = 1
                 currentpage = 1
+                temp = []
                 while currentpage <= pages:
                     while choice < currentpage * 10 + 1:
                         await bot.send_message(ctx.message.author, 'Page number ``' + str(currentpage) + '``/``' + str(pages) + '``:')
@@ -77,14 +78,16 @@ async def search(ctx, *, show_name : str):
                             currentline = lines[i] #starts at index 0, be careful!
                             name = currentline.rstrip('\n').split(':')[0]
                             doujinshifiles = currentline.rstrip('\n').split(':')[2]
-                            await bot.send_message(ctx.message.author, '``' +str(choice) + '``) ' + name + ' (``' + doujinshifiles + '`` pages)')
+                            temp.append('``' +str(choice) + '``) ' + name + ' (``' + doujinshifiles + '`` pages)')
                             await bot.send_typing(ctx.message.author)
                             choice = choice + 1
                             i = i + 1
                             pagesleft = pages - currentpage
                             if choice > currentpage * 10:
-                                await bot.send_message(ctx.message.author, '**Page end reached** (``' + str(pagesleft) + '`` pages left).\nType a selection to continue.\nIf you want to countinue type ``next``. If you want to stop, type ``exit`` instead!')
-                                pick = await bot.wait_for_message(timeout=20.0, author=ctx.message.author)
+                                message = '\n'.join(temp)
+                                await bot.send_message(ctx.message.author, message + '\n**Page end reached** (``' + str(pagesleft) + '`` pages left).\nType a selection to continue.\nIf you want to countinue type ``next``. If you want to stop, type ``exit`` instead!')
+                                temp = []
+                                pick = await bot.wait_for_message(timeout=20.0, author=ctx.message.author, check=currentchannel)
                                 if pick is None:
                                     await bot.send_message(ctx.message.author, 'Timed out, try again!')
                                     return
@@ -104,9 +107,11 @@ async def search(ctx, *, show_name : str):
                                             doujinshiline = num + int(pick.content) - 1
                                             await dump_doujinshi(doujinshiline, ctx.message, lines, num)
                                             return
-                            if choice > currentpage * 10 or choice == files + 1 and pagesleft == 0:
-                                await bot.send_message(ctx.message.author, '**Last page reached.**\nType a selection to continue or type ``exit`` to cancel')
-                                pick = await bot.wait_for_message(timeout=20.0, author=ctx.message.author)
+                            if choice > currentpage * 10 or choice == files + 1 and pagesleft == 0: #last page
+                                message = '\n'.join(temp)
+                                await bot.send_typing(ctx.message.author)
+                                await bot.send_message(ctx.message.author, message + '\n**Last page reached.**\nType a selection to continue or type ``exit`` to cancel')
+                                pick = await bot.wait_for_message(timeout=20.0, author=ctx.message.author, check=currentchannel)
                                 if pick is None:
                                     await bot.send_message(ctx.message.author, 'Timed out, try again!')
                                     return
@@ -117,6 +122,7 @@ async def search(ctx, *, show_name : str):
                                     int(pick.content)
                                 except ValueError:
                                     await bot.send_message(ctx.message.author, 'Only ``exit`` or a doujinshi number supported, exiting...')
+                                    return
                                 else:
                                     if int(pick.content) <= files:
                                             doujinshiline = num + int(pick.content) - 1
@@ -129,6 +135,7 @@ async def listshows(ctx):
     print('User ' + str(ctx.message.author) + ' used $listshows on channel "' + str(ctx.message.channel) +'"')
     await bot.say('Shows in my database:')
     i = 0
+    temp = []
     with open('list.txt') as f:
         lines=f.readlines()
         num_lines = file_len('list.txt')
@@ -140,7 +147,7 @@ async def listshows(ctx):
             name = currentline.rstrip('\n').split('|')[0]
             name = name.split('~')[1]
             files = currentline.rstrip('\n').split('|')[1]
-            await bot.say("**·** ``" + name + '`` (``' + files + '`` doujinshis!)')
+            temp.append("**·** ``" + name + '`` (``' + files + '`` doujinshis!)')
             l = l + int(files) + 2
             i = i + 1
             try:
@@ -149,7 +156,8 @@ async def listshows(ctx):
                 howdoicallthis = 0
             pages = (int(i / 11)) + 1
             if howdoicallthis > pages:
-                await bot.say('**Page end reached**.\nIf you want to countinue type ``next``. If you want to stop, type ``exit`` instead!')
+                message = '\n'.join(temp)
+                await bot.say(message + '\n**Page end reached**.\nIf you want to countinue type ``next``. If you want to stop, type ``exit`` instead!')
                 pick = await bot.wait_for_message(timeout=20.0, author=(ctx.message.author))
                 if pick.content.lower() == "exit":
                     await bot.say('If you want a show added, use ``$suggest <show name>``')
@@ -158,6 +166,7 @@ async def listshows(ctx):
                     await bot.say('Timed out, automatically exited!')
                     return
                 if pick.content.lower() == "next":
+                    temp = []
                     continue
                 if pick.content is not "next" and pick.content is not "exit":
                     await bot.say('Only ``next`` or ``exit`` supported, exiting...')
@@ -225,7 +234,7 @@ async def travis(command : str="none"):
         if command.lower() == "stop":
             await bot.say("``On a local enviroment. Ignoring stop command``")
         if command.lower() == "none":
-            await bot.say("``Currently on a local enviroment!``\nCommands aviable: ``uptime``")
+            await bot.say("``Currently on a local enviroment!``\nCommands available: ``uptime``")
     else:
         if command.lower() == "stop":
             await bot.say("``Stoping Travis build with exit code 0``")
@@ -233,7 +242,7 @@ async def travis(command : str="none"):
         if command.lower() == "uptime":
             await bot.say("The **Travis CI** system uptime is:`` " + uptime() + "``")
         if command.lower() == "none":
-            await bot.say("``Currently on a Travis CI build!``\nCommands aviable: ``stop``, ``uptime``")
+            await bot.say("``Currently on a Travis CI build!``\nCommands available: ``stop``, ``uptime``")
 
 @bot.command()
 async def avi(pic : str):
@@ -280,6 +289,10 @@ def file_len(fname):
         for i, l in enumerate(f):
             pass
     return i + 1
+
+def currentchannel(msg):
+    print(msg.server == None)
+    return msg.server == None
 
 async def dump_doujinshi(doujinshiline, message, lines, num):
     currentline = lines[doujinshiline]
@@ -330,7 +343,7 @@ async def on_ready():
 @bot.event
 async def on_command_error(err, ctx):
     print('Error: ' + str(err))
-    await bot.send_message(ctx.message.channel, 'Error! ``' + str(err) + '``\nContact ``Dick Token#4615`` for help!')
+    await bot.send_message(ctx.message.channel, 'Error! ``' + str(err) + '``')
 
 token = os.getenv('TOKEN')
 travis = os.getenv('TRAVIS')
