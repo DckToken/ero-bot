@@ -4,7 +4,9 @@ import asyncio
 import subprocess
 import os
 from random import randint
+from datetime import datetime
 
+startTime = datetime.now() #for script uptime
 client = discord.Client()
 bot = commands.Bot(command_prefix='$', description="Ero-bot is a lewd h-manga and doujinshi bot!")
 
@@ -13,6 +15,9 @@ bot = commands.Bot(command_prefix='$', description="Ero-bot is a lewd h-manga an
 async def search(ctx, *, show_name : str):
     """Searches for a show and lists all related doujinshi."""
     arg = show_name
+    if arg.lower() == "k-on!" or arg == "K-On":
+        await bot.say("Don't lewd the keions! ")
+        return
     query = "~" + arg + "|"
     with open('list.txt') as f:
         for num, line in enumerate(f, 1):
@@ -227,22 +232,9 @@ async def exact(ctx, show_name : str, name : str):
                 await bot.say('Doujinshi not found, check ``$search ' + show + '``!')
 
 @bot.command()
-async def travis(command : str="none"):
-    if travis is None:
-        if command.lower() == "uptime":
-            await bot.say("The **local** system uptime is: ``" + uptime() + "``")
-        if command.lower() == "stop":
-            await bot.say("``On a local enviroment. Ignoring stop command``")
-        if command.lower() == "none":
-            await bot.say("``Currently on a local enviroment!``\nCommands available: ``uptime``")
-    else:
-        if command.lower() == "stop":
-            await bot.say("``Stoping Travis build with exit code 0``")
-            exit(0)
-        if command.lower() == "uptime":
-            await bot.say("The **Travis CI** system uptime is:`` " + uptime() + "``")
-        if command.lower() == "none":
-            await bot.say("``Currently on a Travis CI build!``\nCommands available: ``stop``, ``uptime``")
+async def uptime():
+    """For testing!"""
+    await bot.say("The system uptime is: ``" + system_uptime() + "``\nThe bot uptime is ``" + script_uptime() + "``")
 
 @bot.command()
 async def avi(pic : str):
@@ -251,7 +243,7 @@ async def avi(pic : str):
     print('Changed avi to ' + pic) # debug
 
 
-def uptime():
+def system_uptime():
      try:
          f = open( "/proc/uptime" )
          contents = f.read().split()
@@ -283,6 +275,10 @@ def uptime():
      string += str(seconds) + " " + (seconds == 1 and "second" or "seconds" )
 
      return string;
+
+def script_uptime():
+    uptime = datetime.now() - startTime
+    return str(uptime)
 
 def file_len(fname):
     with open(fname) as f:
