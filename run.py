@@ -185,7 +185,7 @@ async def suggest(ctx, *, show_name: str):
     """Adds a show to the database."""
     await bot.say('Running script, searching for ``' + show_name + '``...')
     try:
-        subprocess.run(["bash", "/media/ero-bot/unpack.bash", show_name], cwd="/media/ero-bot", check=True)
+        await subprocess.run(["bash", "/media/ero-bot/unpack.bash", show_name], cwd="/media/ero-bot", check=True)
     except subprocess.CalledProcessError:
         print('error on script')
         await bot.say("Bash script error: Couldn't find ``" + show_name + '`` Or there was a problem extracting. Try another show name.')
