@@ -5,13 +5,13 @@ ARG="$1"
 CHECK="/media/ero-bot/$ARG"
 if [ -d "$CHECK" ]; then
   echo "[BASH] Folder alredy exist"
-  exit 0
+  exit 34
 fi
 FILE=/media/ero-bot/list.txt #file must have a blank newline to work
 cd /media/doujins/
 if ! [ -f "$ARG.zip" ]; then
   echo "[BASH] File not found"
-  exit 1
+  exit 69
 fi
 unzip -o /media/doujins/"$ARG".zip -d /media/ero-bot/ #unzips into the bot folder
 rm "$ARG.zip"

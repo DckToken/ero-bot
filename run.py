@@ -3,7 +3,7 @@ from discord.ext import commands
 import asyncio
 import subprocess
 import os
-from random import randint
+import random
 from datetime import datetime
 
 startTime = datetime.now() #for script uptime
@@ -15,7 +15,7 @@ bot = commands.Bot(command_prefix='$', description="Ero-bot is a lewd h-manga an
 async def search(ctx, *, show_name : str):
     """Searches for a show and lists all related doujinshi."""
     arg = show_name
-    if arg.lower() == "k-on!" or arg == "K-On":
+    if arg.lower() == "k-on!" or arg.lower() == "k-on":
         await bot.say("Don't lewd the keions! ")
         return
     query = "~" + arg + "|"
@@ -167,15 +167,17 @@ async def listshows(ctx):
                 if pick.content.lower() == "exit":
                     await bot.say('If you want a show added, use ``$suggest <show name>``')
                     return
-                if pick.content == None:
+                try:
+                    pick.content == None
+                except AttributeError:
                     await bot.say('Timed out, automatically exited!')
                     return
-                if pick.content.lower() == "next":
-                    temp = []
-                    continue
-                if pick.content is not "next" and pick.content is not "exit":
-                    await bot.say('Only ``next`` or ``exit`` supported, exiting...')
-                    return
+                else:
+                    if pick.content.lower() == "next":
+                        temp = []
+                        continue
+                    if pick.content is not "next" and pick.content is not "exit":
+                        return
             else:
                 pass
     await bot.say('If you want a show added, use ``$suggest <show name>``')
@@ -184,11 +186,17 @@ async def listshows(ctx):
 async def suggest(ctx, *, show_name: str):
     """Adds a show to the database."""
     await bot.say('Running script, searching for ``' + show_name + '``...')
+    await bot.send_typing(ctx.message.channel)
     try:
-        await subprocess.run(["bash", "/media/ero-bot/unpack.bash", show_name], cwd="/media/ero-bot", check=True)
-    except subprocess.CalledProcessError:
-        print('error on script')
-        await bot.say("Bash script error: Couldn't find ``" + show_name + '`` Or there was a problem extracting. Try another show name.')
+        await subprocess.run(["bash", "/media/ero-bot/unpack.bash", show_name], cwd="/media/ero-bot", check=True, stdout=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        code = e.returncode
+        if code == 69:
+            await bot.say('Doujinshi not found. Show names are case sensitive')
+        elif code == 34:
+            await bot.say('Doujinshi alredy added, use ``$search ' + show_name + "`` to start the dump!")
+        else:
+            await bot.say('Unexcepted error while unziping. Please use ``$listshows`` for checking the list')
     else:
         await bot.say('Doujinshi ``' + show_name + '`` successfully added!')
 
@@ -221,7 +229,6 @@ async def exact(ctx, show_name : str, name : str):
             await bot.say('Show found! Searching for the doujinshi...')
             while l <= showline + files - 1:
                 currentline = lines[l]
-                await bot.send_typing(ctx.message.channel)
                 if name.lower() in currentline.lower():
                     await dump_doujinshi(l, ctx.message, lines, showline)
                     return
@@ -236,12 +243,44 @@ async def uptime():
     """For testing!"""
     await bot.say("The system uptime is: ``" + system_uptime() + "``\nThe bot uptime is ``" + script_uptime() + "``")
 
-@bot.command()
-async def avi(pic : str):
-    avatar = open('/media/ero-bot/avis/' + str(pic), 'rb')
-    await bot.edit_profile(password=None, avatar=avatar.read())
-    print('Changed avi to ' + pic) # debug
+@bot.command(pass_context=True)
+async def sfwloli(ctx, pic_number : int=1):
+    """Sends you random SFW loli pics!"""
+    folder = "/media/ero-bot/sfwlolis/"
+    if pic_number > 20:
+        await bot.say('Max 20 pics per command!')
+        return
+    for i in range(1, pic_number + 1):
+        filename = random.choice(os.listdir(folder))
+        path = folder + filename
+        size = str(os.path.getsize(path) / 1048576)
+        content = "File ``{}``. Filename: ``{}``, size: ``{} MB``".format(str(i), filename, size[:4])
+        await bot.send_file(ctx.message.author, path, content=content)
 
+@bot.command(pass_context=True)
+async def nsfwloli(ctx, pic_number : int=1):
+    """Sends you random NSFW loli pics!"""
+    folder = "/media/ero-bot/nsfwlolis/"
+    if pic_number > 20:
+        await bot.say('Max 20 pics per command!')
+        return
+    for i in range(1, pic_number + 1):
+        filename = random.choice(os.listdir(folder))
+        path = folder + filename
+        size = str(os.path.getsize(path) / 1048576)
+        content = "File ``{}``. Filename: ``{}``, size: ``{} MB``".format(str(i), filename, size[:4])
+        await bot.send_file(ctx.message.author, path, content=content)
+
+@bot.command(pass_context=True)
+async def joinvoice(ctx):
+    author = ctx.message.author
+    server = author.server
+    channel = server.afk_channel
+    try:
+        await bot.join_voice_channel(channel)
+    except Exception:
+        pass
+    
 
 def system_uptime():
      try:
@@ -266,18 +305,20 @@ def system_uptime():
 
      # Build up the pretty string (like this: "N days, N hours, N minutes, N seconds")
      string = ""
-     if days > 0:
-         string += str(days) + " " + (days == 1 and "day" or "days" ) + ", "
-     if len(string) > 0 or hours > 0:
-         string += str(hours) + " " + (hours == 1 and "hour" or "hours" ) + ", "
-     if len(string) > 0 or minutes > 0:
-         string += str(minutes) + " " + (minutes == 1 and "minute" or "minutes" ) + ", "
-     string += str(seconds) + " " + (seconds == 1 and "second" or "seconds" )
+     #if days > 0:
+         #string += str(days) + " " + (days == 1 and "day" or "days" ) + ", "
+     #if len(string) > 0 or hours > 0:
+         #string += str(hours) + " " + (hours == 1 and "hour" or "hours" ) + ", "
+     #if len(string) > 0 or minutes > 0:
+         #string += str(minutes) + " " + (minutes == 1 and "minute" or "minutes" ) + ", "
+     #string += str(seconds) + " " + (seconds == 1 and "second" or "seconds" )
+     string = str(days) + ":" + str(hours) + ":" + str(minutes) + ":" + str(seconds)
 
      return string;
 
 def script_uptime():
-    uptime = datetime.now() - startTime
+    uptime = str(datetime.now() - startTime)
+    uptime = uptime.split('.')[0]
     return str(uptime)
 
 def file_len(fname):
@@ -303,10 +344,28 @@ async def dump_doujinshi(doujinshiline, message, lines, num):
     await bot.send_message(message.author, '''Show: ``{}``\nDoujinshi name: ``{}``\nPages: ``{}``'''.format(show, name, str(pages)))
     i = 1
     while i < pages + 1:
+        pick = await bot.wait_for_message(timeout=0.2, author=message.author, check=currentchannel)
+        try:
+            pick.content == "exit" or pick.content == "stop" or pick.content == "cancel"
+        except AttributeError:
+            pass
+        else:
+            if pick.content == "exit" or pick.content == "stop" or pick.content == "cancel":
+                await bot.send_message(message.author, '**Dump cancelled**')
+                return 
         path = "{}/{}/{}{}.{}".format(show, name, filename, str(i), extension)
         content = "Page ``{}``/``{}``".format(str(i), str(pages))
         await bot.send_file(message.author, path, content=content)
         print('Sent file ' + str(i) + ' of doujinshi "' + name + '" to user ' + str(message.author))
+        pick = await bot.wait_for_message(timeout=0.2, author=message.author, check=currentchannel)
+        try:
+            pick.content == "exit" or pick.content == "stop" or pick.content == "cancel"
+        except AttributeError:
+            pass
+        else:
+            if pick.content == "exit" or pick.content == "stop" or pick.content == "cancel":
+                await bot.send_message(message.author, '**Dump cancelled**')
+                return
         i = i + 1
     await bot.send_message(message.author, 'Dump finished! :ok_hand:')
     print('Dump finished for user ' + str(message.author))
@@ -321,7 +380,7 @@ async def on_ready():
         await bot.change_status(discord.Game(name='with doujinshi!'))
         pics = subprocess.run(["bash", "/media/ero-bot/pics.bash"], cwd="/media/ero-bot/avis", stdout=subprocess.PIPE, universal_newlines=True)
         while True:
-            i = randint(1, int(pics.stdout))
+            i = random.randint(1, int(pics.stdout))
             avatar = open('/media/ero-bot/avis/' + str(i), 'rb')
             await bot.edit_profile(password=None, avatar=avatar.read())
             print('Changed avatar to "' + str(i) + '", waiting 15 minutes...')
